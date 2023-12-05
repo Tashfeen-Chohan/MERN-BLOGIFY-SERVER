@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Joi = require("joi")
+const Joi = require("joi");
 
 const categorySchema = new mongoose.Schema(
   {
@@ -8,19 +8,17 @@ const categorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Category = mongoose.model("Category", categorySchema)
+const Category = mongoose.model("Category", categorySchema);
 
 // JOI VALIDATION
 const validateCategory = (category) => {
   const schema = Joi.object({
-    name: Joi.string().min(2).required()
-  })
-  return schema.validate(category)
-}
+    name: Joi.string().min(2).required(),
+  });
+  return schema.validate(category);
+};
 
 module.exports = {
   Category,
-  validateCategory
-}
-
-
+  validateCategory,
+};

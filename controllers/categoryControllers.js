@@ -20,6 +20,19 @@ const getAllCategories = asyncHandler(async (req, res) => {
   res.status(200).send(capitalizedCategories);
 });
 
+// GET SINGLE CATEGORY
+const getSingleCategory = asyncHandler(async (req, res) => {
+  const category = await Category.findById(req.params.id)
+  if (!category) return res.status(400).send({message: "Category not found!"})
+
+  // CAPITALIZED NAME PROPERTY
+  const capitalizedCategory = {
+    ...category.toObject(),
+    name: category.name.charAt(0).toUpperCase() + category.name.slice(1)
+  }
+  res.status(200).send(capitalizedCategory)
+})
+
 
 // POST [ NEW CATEGORY ]
 const createCategory = asyncHandler(async (req, res) => {
@@ -38,7 +51,17 @@ const createCategory = asyncHandler(async (req, res) => {
   res.status(200).send({message: "Category created succssfully!"})
 })
 
+const deleteCategory = asyncHandler(async (req, res) => {
+  const category = await Category.findByIdAndDelete(req.params.id)
+  if (!category) return res.status(400).send({message: "No category found!"})
+  res.status(200).send({message: "Category deleted successfully!"})
+})
+
+
+
 module.exports = {
   getAllCategories,
-  createCategory
+  getSingleCategory,
+  createCategory,
+  deleteCategory
 }
