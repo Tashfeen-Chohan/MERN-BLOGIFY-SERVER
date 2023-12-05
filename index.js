@@ -12,5 +12,8 @@ mongoose
 // MIDDLEWARE FUNCTIONS
 app.use(express.json());
 
+// API ENDPOINTS
+app.use("/categories", require("./routes/categoryRoutes"))
 
-app.listen(() => console.log(`Server is listening on port ${PORT}!`));
+
+app.listen(PORT, () => console.log(`Server is listening on port ${PORT}!`));

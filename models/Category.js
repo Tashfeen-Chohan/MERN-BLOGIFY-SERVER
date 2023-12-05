@@ -3,7 +3,7 @@ const Joi = require("joi")
 
 const categorySchema = new mongoose.Schema(
   {
-    name: { type: String, unique: true, require: true },
+    name: { type: String, lowercase: true, unique: true, require: true },
   },
   { timestamps: true }
 );
