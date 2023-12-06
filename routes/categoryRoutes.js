@@ -7,7 +7,7 @@ router.route("/")
 
 router.route("/:id")  
   .get(categoryControllers.getSingleCategory)
-  .patch()
+  .patch(categoryControllers.updateCategory)
   .delete(categoryControllers.deleteCategory)
 
 module.exports = router;  

@@ -57,11 +57,27 @@ const deleteCategory = asyncHandler(async (req, res) => {
   res.status(200).send({message: "Category deleted successfully!"})
 })
 
+const updateCategory = asyncHandler(async (req, res) => {
+  const {name} = req.body;
+  const id = req.params.id;
+
+  const {error} = validateCategory(req.body)
+  if (error) return res.status(200).send({message: error.details[0].message})
+
+  let category = await Category.findOne({name, _id: { $ne: id}})
+  if (category) return res.status(400).send({message: "Category already exists!"})
+
+  category = await Category.findByIdAndUpdate(id, req.body, {new: true})
+  if (!category) return res.status(400).send({message: "Category not found!"})
+  res.status(200).send({message: "Category updated successfully!"})
+})
+
 
 
 module.exports = {
   getAllCategories,
   getSingleCategory,
   createCategory,
-  deleteCategory
+  deleteCategory,
+  updateCategory
 }
