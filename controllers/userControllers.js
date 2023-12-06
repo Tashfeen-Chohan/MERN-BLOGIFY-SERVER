@@ -2,6 +2,7 @@ const {User, validateUser} = require("../models/User")
 const asyncHandler = require("express-async-handler")
 const bcrypt = require('bcrypt');
 
+// GET USERS
 const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find().select("-password")
   if (!users?.length) return res.status(400).send({message: "No user found!"})
@@ -17,6 +18,15 @@ const getAllUsers = asyncHandler(async (req, res) => {
   res.status(200).send(capitalized)
 })
 
+// GET SINGLE USER
+const getSingleUser = asyncHandler(async (req, res) => {
+  const {id} = req.params
+  const user = await User.findById(id).select("-password")
+  if (!user) return res.status(400).send({message: "No user found!"})
+  res.status(200).send(user)
+})
+
+// POST USER
 const createUser = asyncHandler(async (req, res) => {
   const {profile, username, email, password, roles} = req.body
 
@@ -35,7 +45,21 @@ const createUser = asyncHandler(async (req, res) => {
   res.status(200).send({message: "User created successfully!"})
 })
 
+// PATCH USER
+
+// DELETE USER
+const deleteUser = asyncHandler(async (req, res) => {
+  const {id} = req.params
+  const user = await User.findByIdAndDelete(id)
+  if (!user) return res.status(400).send({message: "No user found!"})
+  res.status(200).send({message: "User deleted successfully!"})
+})
+
+
+
 module.exports = {
   getAllUsers,
   createUser,
+  getSingleUser,
+  deleteUser
 }
