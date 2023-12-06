@@ -9,9 +9,13 @@ const getAllUsers = asyncHandler(async (req, res) => {
   
   // CAPITALIZING USERNAME
   const capitalized = users.map((user) => {
+    const words = user.username.split(" ")
+    const capWords = words.map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    })
     return {
       ...user.toObject(),
-      username: user.username.charAt(0).toUpperCase() + user.username.slice(1)
+      username: capWords.join(" ") 
     }
   })
 
@@ -23,7 +27,18 @@ const getSingleUser = asyncHandler(async (req, res) => {
   const {id} = req.params
   const user = await User.findById(id).select("-password")
   if (!user) return res.status(400).send({message: "No user found!"})
-  res.status(200).send(user)
+
+  // CAPITALIZING USERNAME
+  const words = user.username.split(" ")
+  const capWords = words.map((word) => {
+    return word.charAt(0).toUpperCase() + word.slice(1)
+  })
+  const capitalized = {
+    ...user.toObject(),
+    username: capWords.join(" ")
+  }
+
+  res.status(200).send(capitalized)
 })
 
 // POST USER

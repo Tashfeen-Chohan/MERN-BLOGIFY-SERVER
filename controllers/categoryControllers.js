@@ -9,15 +9,21 @@ const getAllCategories = asyncHandler(async (req, res) => {
     return res.status(400).send({ message: "No category found!" });
   }
 
-  // Capitalize only the first character of each category name
-  const capitalizedCategories = categories.map(category => {
+  // Capitalize  each category name
+  const capitalized = categories.map(category => {
+    const words = category.name.split(" ")
+
+    const capWords = words.map((word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    })
+
     return {
       ...category.toObject(),
-      name: category.name.charAt(0).toUpperCase() + category.name.slice(1)
+      name: capWords.join(" ")
     };
   });
 
-  res.status(200).send(capitalizedCategories);
+  res.status(200).send(capitalized);
 });
 
 // GET SINGLE CATEGORY
@@ -26,11 +32,16 @@ const getSingleCategory = asyncHandler(async (req, res) => {
   if (!category) return res.status(400).send({message: "Category not found!"})
 
   // CAPITALIZED NAME PROPERTY
-  const capitalizedCategory = {
+  const words = category.name.split(" ")
+  const capWords = words.map((word) => {
+    return word.charAt(0).toUpperCase() + word.slice(1)
+  })
+  const capitalized = {
     ...category.toObject(),
-    name: category.name.charAt(0).toUpperCase() + category.name.slice(1)
+    name: capWords.join(" ")
   }
-  res.status(200).send(capitalizedCategory)
+
+  res.status(200).send(capitalized)
 })
 
 
