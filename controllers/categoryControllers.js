@@ -72,8 +72,6 @@ const updateCategory = asyncHandler(async (req, res) => {
   res.status(200).send({message: "Category updated successfully!"})
 })
 
-
-
 module.exports = {
   getAllCategories,
   getSingleCategory,
