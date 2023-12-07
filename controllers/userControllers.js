@@ -60,7 +60,24 @@ const createUser = asyncHandler(async (req, res) => {
   res.status(200).send({message: "User created successfully!"})
 })
 
-// PATCH USER
+// UPDATE USER
+const updateUser = asyncHandler(async (req, res) => {
+  const {username, email, roles} = req.body
+  const {id} = req.params
+
+  const {error} = validateUser(req.body)
+  if (error) return res.status(400).send({message: error.details[0].message})
+
+  let user = await User.findOne({username, _id: {$ne: id}})
+  if (user) return res.status(400).send({message: "Can't update. Username already exists!"})
+  
+  user = await User.findOne({email, _id: {$ne: id}})
+  if (user) return res.status(400).send({message: "Can't update. Email already exists!"})
+
+  user = await User.findByIdAndUpdate(id, req.body, {new: true})
+  if (!user) return res.status(400).send({message: "User not found!"})
+  res.status(200).send({message: "User updated successfully!"})
+})
 
 // DELETE USER
 const deleteUser = asyncHandler(async (req, res) => {
@@ -76,5 +93,6 @@ module.exports = {
   getAllUsers,
   createUser,
   getSingleUser,
+  updateUser,
   deleteUser
 }

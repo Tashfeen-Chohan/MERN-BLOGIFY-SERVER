@@ -34,6 +34,7 @@ const validateUser = (user) => {
   return schema.validate(user)
 }
 
+
 module.exports = {
   User,
   validateUser

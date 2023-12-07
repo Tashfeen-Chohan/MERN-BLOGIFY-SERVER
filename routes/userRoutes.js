@@ -7,7 +7,7 @@ router.route("/")
 
 router.route("/:id")  
   .get(userControllers.getSingleUser)
-  .patch()
+  .patch(userControllers.updateUser)
   .delete(userControllers.deleteUser)
 
 module.exports = router;  
