@@ -1,6 +1,8 @@
+require("dotenv").config()
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
+const cookieParser = require("cookie-parser")
 const PORT = process.env.PORT  || 3000;
 
 // DATABASE CONNECTION
@@ -11,11 +13,13 @@ mongoose
 
 // MIDDLEWARE FUNCTIONS
 app.use(express.json());
+app.use(cookieParser())
 
 // API ENDPOINTS
 app.use("/categories", require("./routes/categoryRoutes"))
 app.use("/users", require("./routes/userRoutes"))
 app.use("/posts", require("./routes/postRoutes"))
+app.use("/auth", require("./routes/authRoutes"))
 
 
 app.listen(PORT, () => console.log(`Server is listening on port ${PORT}!`));
