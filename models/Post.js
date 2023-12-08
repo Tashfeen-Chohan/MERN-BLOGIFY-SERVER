@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Joi = require("joi")
 
-const postSchema = new mongoose.model({
+const postSchema = new mongoose.Schema({
   title: {type: String, require: true},
   content: {type: String, require: true},
   author: {type: mongoose.Schema.Types.ObjectId, ref: "User", require: true},
@@ -16,8 +16,8 @@ const validatePost = (post) => {
   const schema = Joi.object({
     title: Joi.string().min(3).required(),
     content: Joi.string().min(10).required(),
-    author: ObjectId.required(),
-    category: ObjectId.required(),
+    author: Joi.string().required(),
+    category: Joi.string().required(),
   })
   return schema.validate(post)
 }

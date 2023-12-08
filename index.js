@@ -15,6 +15,7 @@ app.use(express.json());
 // API ENDPOINTS
 app.use("/categories", require("./routes/categoryRoutes"))
 app.use("/users", require("./routes/userRoutes"))
+app.use("/posts", require("./routes/postRoutes"))
 
 
 app.listen(PORT, () => console.log(`Server is listening on port ${PORT}!`));
