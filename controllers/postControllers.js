@@ -40,7 +40,22 @@ const createPost = asyncHandler(async (req, res) => {
   res.status(200).send({ message: "Post created successfully!" });
 });
 
-// PATCH REQUEST
+// UPDATE REQUEST
+const updatePost = asyncHandler(async (req, res) => {
+  const {id} = req.params
+  const {title, author} = req.body
+
+  const {error} = validatePost(req.body)
+  if (error) return res.status(400).send({message: error.details[0].message})
+
+  let post = await Post.findOne({title, author, _id: {$ne: id}})
+  if (post) return res.status(400).send({message: "Could not update! Post with same author already exists!"})
+
+  post = await Post.findByIdAndUpdate(id, req.body, {new: true})
+  if (!post) return res.status(400).send({message: "No post found!"})
+  res.status(200).send({message: "Post updated successfully!"})
+})
+
 
 // DELETE REQUEST
 const deletePost = asyncHandler(async (req, res) => {
@@ -54,5 +69,6 @@ module.exports = {
   createPost,
   getAllPosts,
   getSinglePost,
+  updatePost,
   deletePost
 };
