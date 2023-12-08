@@ -43,9 +43,16 @@ const createPost = asyncHandler(async (req, res) => {
 // PATCH REQUEST
 
 // DELETE REQUEST
+const deletePost = asyncHandler(async (req, res) => {
+  const {id} = req.params
+  const post = await Post.findByIdAndDelete(id)
+  if (!post) return res.status(400).send({message: "No post found!"}) 
+  res.status(200).send({message: "Post deleted successfully!"})
+})
 
 module.exports = {
   createPost,
   getAllPosts,
   getSinglePost,
+  deletePost
 };
