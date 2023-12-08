@@ -5,7 +5,7 @@ const postSchema = new mongoose.Schema({
   title: {type: String, require: true},
   content: {type: String, require: true},
   author: {type: mongoose.Schema.Types.ObjectId, ref: "User", require: true},
-  category: {type: mongoose.Schema.Types.ObjectId, ref: "Category", require: true}
+  categories: [{type: mongoose.Schema.Types.ObjectId, ref: "Category", require: true}]
 })
 
 postSchema.index({title: 1, author: 1}, {unique: true})
@@ -17,7 +17,7 @@ const validatePost = (post) => {
     title: Joi.string().min(3).required(),
     content: Joi.string().min(10).required(),
     author: Joi.string().required(),
-    category: Joi.string().required(),
+    categories: Joi.array().items(Joi.string().required())
   })
   return schema.validate(post)
 }
