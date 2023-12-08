@@ -13,6 +13,14 @@ const getAllPosts = asyncHandler(async (req, res) => {
 });
 
 // GET SINGLE POST REQUEST
+const getSinglePost = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const post = await Post.findById(id)
+    .populate("author", "username -_id")
+    .populate("categories", "name -_id");
+  if (!post) return res.status(400).send({ message: "No post found!" });
+  res.status(200).send(post);
+});
 
 // POST REQUEST
 const createPost = asyncHandler(async (req, res) => {
@@ -39,4 +47,5 @@ const createPost = asyncHandler(async (req, res) => {
 module.exports = {
   createPost,
   getAllPosts,
+  getSinglePost,
 };

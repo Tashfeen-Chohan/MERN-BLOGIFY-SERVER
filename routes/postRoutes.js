@@ -6,7 +6,7 @@ router.route("/")
   .post(postControllers.createPost)
 
 router.route("/:id")  
-  .get()
+  .get(postControllers.getSinglePost)
   .patch()
   .delete()
   
