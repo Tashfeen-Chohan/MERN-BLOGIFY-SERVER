@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     username: { type: String, unique: true, lowercase: true, require: true },
     email: { type: String, unique: true, lowercase: true, require: true },
     password: { type: String, require: true },
-    roles: { type: [String], default: ["Visitor"] },
+    roles: { type: [String], default: ["User"] },
   },
   { timestamps: true }
 );
@@ -29,7 +29,7 @@ const validateUser = (user) => {
     username: Joi.string().min(3).required(),
     email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com'] } }),
     password: passwordComplexity(complexityOptions),
-    roles: Joi.array().items(Joi.string().valid("Visitor", "Publisher", "Admin"))
+    roles: Joi.array().items(Joi.string().valid("User", "Publisher", "Admin"))
   })
   return schema.validate(user)
 }

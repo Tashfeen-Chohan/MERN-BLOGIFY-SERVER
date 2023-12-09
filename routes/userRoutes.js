@@ -1,13 +1,25 @@
-const router = require("express").Router()
-const userControllers = require("../controllers/userControllers")
+const router = require("express").Router();
+const {
+  getAllUsers,
+  getSingleUser,
+  createUser,
+  updateUser,
+  deleteUser,
+} = require("../controllers/userControllers");
+const verifyJWT = require("../middlewares/verifyJWT");
+const checkRoles = require("../middlewares/checkRoles");
+
+const checkAdmin = checkRoles(["Publisher", "Admin"]);
+const checkPublisher = checkRoles(["Publisher"]);
 
 router.route("/")
-  .get(userControllers.getAllUsers)
-  .post(userControllers.createUser)
+  .get (getAllUsers)
+  .post (verifyJWT, checkAdmin, createUser);
 
-router.route("/:id")  
-  .get(userControllers.getSingleUser)
-  .patch(userControllers.updateUser)
-  .delete(userControllers.deleteUser)
+router
+  .route("/:id")
+  .get (getSingleUser)
+  .patch (verifyJWT, updateUser)
+  .delete (verifyJWT, checkAdmin, deleteUser);
 
-module.exports = router;  
+module.exports = router;
