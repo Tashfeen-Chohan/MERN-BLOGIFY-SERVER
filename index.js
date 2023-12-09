@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser")
 const multer = require("multer")
 const asyncHandler = require("express-async-handler")
+const cors = require('cors');
+const corsOptions = require("./config/corsOptions")
 const PORT = process.env.PORT  || 3000;
 
 // DATABASE CONNECTION
@@ -32,6 +34,7 @@ app.post("/upload", upload.single("file"), asyncHandler(async (req, res) => {
 // MIDDLEWARE FUNCTIONS
 app.use(express.json());
 app.use(cookieParser())
+app.use(cors(corsOptions))
 
 // API ENDPOINTS
 app.use("/categories", require("./routes/categoryRoutes"))
