@@ -1,4 +1,5 @@
 const { User, validateUser } = require("../models/User");
+const { Post } = require("../models/Post")
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 
@@ -108,6 +109,10 @@ const updateUser = asyncHandler(async (req, res) => {
 // DELETE USER
 const deleteUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
+
+  const postCount = await Post.countDocuments({author: id})
+  if (postCount > 0) return res.status(400).send({message: "Can't delete User associated with Post"})
+
   const user = await User.findByIdAndDelete(id);
   if (!user) return res.status(400).send({ message: "No user found!" });
   res.status(200).send({ message: "User deleted successfully!" });

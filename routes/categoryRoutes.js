@@ -20,7 +20,7 @@ router
 router
   .route ("/:id")
   .get (verifyJWT, getSingleCategory)
-  .patch (verifyJWT, updateCategory)
+  .patch (verifyJWT, checkAdmin, updateCategory)
   .delete (verifyJWT, checkAdmin, deleteCategory);
 
 module.exports = router;

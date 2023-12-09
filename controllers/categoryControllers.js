@@ -1,4 +1,5 @@
 const { Category, validateCategory} = require("../models/Category")
+const {Post} = require("../models/Post")
 const asyncHandler = require("express-async-handler")
 
 // GET ALL CATEGORIES
@@ -62,8 +63,14 @@ const createCategory = asyncHandler(async (req, res) => {
   res.status(200).send({message: "Category created succssfully!"})
 })
 
+// DELETE CATEGORY
 const deleteCategory = asyncHandler(async (req, res) => {
-  const category = await Category.findByIdAndDelete(req.params.id)
+  const {id} = req.params
+
+  const postCount = await Post.countDocuments({categories: id})
+  if (postCount > 0) return res.status(400).send({message: "Can't delete Category with associated Posts"})
+
+  const category = await Category.findByIdAndDelete(id)
   if (!category) return res.status(400).send({message: "No category found!"})
   res.status(200).send({message: "Category deleted successfully!"})
 })
