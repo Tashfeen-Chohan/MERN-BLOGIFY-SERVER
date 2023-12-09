@@ -5,6 +5,6 @@ router.route("/login")
   .post(authControllers.login)
 
 router.route("/logout")  
-  .post()
+  .post(authControllers.logout)
 
 module.exports = router;  

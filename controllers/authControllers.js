@@ -34,6 +34,17 @@ const login = asyncHandler(async (req, res) => {
   res.status(200).send({message: "Login Sucessfull!", token})
 });
 
+const logout = asyncHandler(async (req, res) => {
+  const cookies = req.cookies
+  if (!cookies?.token) return res.sendStatus(204) // NO CONTENT
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: true,
+  })
+  res.status(200).send({message: "Logout Successfull!"})
+})
+
 module.exports = {
   login,
+  logout
 }
