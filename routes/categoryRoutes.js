@@ -1,13 +1,22 @@
-const router = require("express").Router()
-const categoryControllers = require("../controllers/categoryControllers")
+const router = require("express").Router();
+const {
+  getAllCategories,
+  getSingleCategory,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} = require("../controllers/categoryControllers");
+const verifyJWT = require("../middlewares/verifyJWT");
 
-router.route("/")
-  .get(categoryControllers.getAllCategories)
-  .post(categoryControllers.createCategory)
+router
+  .route ("/")
+  .get (getAllCategories)
+  .post (verifyJWT, createCategory);
 
-router.route("/:id")  
-  .get(categoryControllers.getSingleCategory)
-  .patch(categoryControllers.updateCategory)
-  .delete(categoryControllers.deleteCategory)
+router
+  .route ("/:id")
+  .get (getSingleCategory)
+  .patch (updateCategory)
+  .delete (verifyJWT, deleteCategory);
 
-module.exports = router;  
+module.exports = router;

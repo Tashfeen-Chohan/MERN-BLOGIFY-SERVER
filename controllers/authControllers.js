@@ -35,8 +35,8 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const logout = asyncHandler(async (req, res) => {
-  const cookies = req.cookies
-  if (!cookies?.token) return res.sendStatus(204) // NO CONTENT
+  const cookies = req.cookies.token
+  if (!cookies) return res.sendStatus(204) // NO CONTENT
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: true,
