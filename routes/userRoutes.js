@@ -18,7 +18,7 @@ router.route("/")
 
 router
   .route("/:id")
-  .get (getSingleUser)
+  .get (verifyJWT, getSingleUser)
   .patch (verifyJWT, updateUser)
   .delete (verifyJWT, checkAdmin, deleteUser);
 
