@@ -6,11 +6,15 @@ const asyncHandler = require("express-async-handler");
 const getAllCategories = asyncHandler(async (req, res) => {
   const sortBy = req.query.sortBy || "";
   const searchBy = req.query.searchBy || "";
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
 
   let sortQuery = { updatedAt: -1 };
 
+  // SEARCH FUNCTIONALITY BY NAME [CASE INSENSITIVE]
   const searchQuery = { name: { $regex: searchBy, $options: "i" } };
 
+  // SORTING
   if (sortBy) {
     if (sortBy === "name") {
       sortQuery = { name: 1 };
@@ -23,7 +27,17 @@ const getAllCategories = asyncHandler(async (req, res) => {
     }
   }
 
-  const categories = await Category.find(searchQuery).sort(sortQuery);
+  // PAGINATION
+  const totalCategories = await Category.countDocuments(searchQuery);
+  const totalPages = Math.ceil(totalCategories / limit);
+  const skip = (page - 1) * limit;
+  const nextPage = page < totalPages ? page + 1 : null;
+  const prevPage = page > 1 ? page - 1 : null;
+
+  const categories = await Category.find(searchQuery)
+    .sort(sortQuery)
+    .skip(skip)
+    .limit(limit);
 
   // if (!categories?.length) {
   //   return res.status(400).send({ message: "No category found!" });
@@ -43,7 +57,17 @@ const getAllCategories = asyncHandler(async (req, res) => {
     };
   });
 
-  res.status(200).send(capitalized);
+  res
+    .status(200)
+    .send({
+      capitalized,
+      totalCategories,
+      totalPages,
+      nextPage,
+      prevPage,
+      page,
+      limit,
+    });
 });
 
 // GET SINGLE CATEGORY
