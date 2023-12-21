@@ -4,7 +4,22 @@ const asyncHandler = require("express-async-handler")
 
 // GET ALL CATEGORIES
 const getAllCategories = asyncHandler(async (req, res) => {
-  const categories = await Category.find();
+  const sort = req.query.sortBy || ""
+  let sortQuery = {updatedAt: -1}
+
+  if (sort){
+    if (sort === "name"){
+      sortQuery = {name: 1}
+    } else if (sort === "name desc"){
+      sortQuery = {name: -1}
+    } else if (sort === "date"){
+      sortQuery = {updatedAt: 1}
+    } else if (sort === "date desc"){
+      sortQuery = {updatedAt: -1}
+    }
+  }
+
+  const categories = await Category.find().sort(sortQuery);
   
   if (!categories?.length) {
     return res.status(400).send({ message: "No category found!" });
@@ -75,12 +90,13 @@ const deleteCategory = asyncHandler(async (req, res) => {
   res.status(200).send({message: "Category deleted successfully!"})
 })
 
+// UPDATE CATEGORY
 const updateCategory = asyncHandler(async (req, res) => {
   const {name} = req.body;
   const id = req.params.id;
 
   const {error} = validateCategory(req.body)
-  if (error) return res.status(200).send({message: error.details[0].message})
+  if (error) return res.status(400).send({message: error.details[0].message})
 
   let category = await Category.findOne({name, _id: { $ne: id}})
   if (category) return res.status(400).send({message: "Category already exists!"})

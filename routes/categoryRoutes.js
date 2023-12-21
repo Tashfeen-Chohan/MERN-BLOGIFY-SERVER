@@ -15,12 +15,16 @@ const checkPublisher = checkRoles(["Publisher"])
 router
   .route ("/")
   .get (getAllCategories)
-  .post (verifyJWT, checkPublisher, createCategory);
+  // .post (verifyJWT, checkPublisher, createCategory);
+  .post(createCategory)
 
 router
   .route ("/:id")
-  .get (verifyJWT, getSingleCategory)
-  .patch (verifyJWT, checkAdmin, updateCategory)
-  .delete (verifyJWT, checkAdmin, deleteCategory);
+  // .get (verifyJWT, getSingleCategory)
+  .get(getSingleCategory)
+  // .patch (verifyJWT, checkAdmin, updateCategory)
+  .patch(updateCategory)
+  // .delete (verifyJWT, checkAdmin, deleteCategory);
+  .delete(deleteCategory)
 
 module.exports = router;

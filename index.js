@@ -15,7 +15,7 @@ mongoose
   .then(() => console.log("Database connected successfully!"))
   .catch((error) => console.log("Could not connect to the database : ", error));
 
-const storage = multer.storage({
+const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "Images")
   },

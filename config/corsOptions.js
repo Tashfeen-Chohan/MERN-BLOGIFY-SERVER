@@ -1,6 +1,6 @@
 const allowedOrigins = require("./allowedOrigins")
 
-export const corsOptions = {
+const corsOptions = {
   origin: (origin, callback) => {
     // IF INCOMMING REQUEST IS FROM ALLOWED ORIGINS OR REST TOOLS [POSTMON] OR SERVER TO SERVER
     if (allowedOrigins.indexOf(origin) !== -1 || !origin){
@@ -12,3 +12,5 @@ export const corsOptions = {
   },
   credentials: true,
 }
+
+module.exports = corsOptions;
