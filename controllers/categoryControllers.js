@@ -97,12 +97,14 @@ const createCategory = asyncHandler(async (req, res) => {
   const { error } = validateCategory(req.body);
   if (error) return res.status(400).send({ message: error.details[0].message });
 
+  const trimmedName = name.trim()
+
   // DUPLICATION CHECK
-  let category = await Category.findOne({ name });
+  let category = await Category.findOne({ name : trimmedName });
   if (category)
     return res.status(400).send({ message: "Category already exists!" });
 
-  category = new Category(req.body);
+  category = new Category({name: trimmedName});
   await category.save();
   res.status(200).send({ message: "Category created succssfully!" });
 });
@@ -130,11 +132,13 @@ const updateCategory = asyncHandler(async (req, res) => {
   const { error } = validateCategory(req.body);
   if (error) return res.status(400).send({ message: error.details[0].message });
 
-  let category = await Category.findOne({ name, _id: { $ne: id } });
+  const trimmedName = name.trim()
+
+  let category = await Category.findOne({ name: trimmedName, _id: { $ne: id } });
   if (category)
     return res.status(400).send({ message: "Category already exists!" });
 
-  category = await Category.findByIdAndUpdate(id, req.body, { new: true });
+  category = await Category.findByIdAndUpdate(id, {name: trimmedName}, { new: true });
   if (!category)
     return res.status(400).send({ message: "Category not found!" });
   res.status(200).send({ message: "Category updated successfully!" });
