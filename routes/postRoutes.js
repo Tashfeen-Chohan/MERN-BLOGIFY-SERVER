@@ -18,6 +18,7 @@ router
   .get(getAllPosts)
   .post(verifyJWT, checkPublisher, createPost);
 
+
 router
   .route("/:id")
   .get(getSinglePost)

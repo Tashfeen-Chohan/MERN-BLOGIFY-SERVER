@@ -57,17 +57,15 @@ const getAllCategories = asyncHandler(async (req, res) => {
     };
   });
 
-  res
-    .status(200)
-    .send({
-      capitalized,
-      totalCategories,
-      totalPages,
-      nextPage,
-      prevPage,
-      page,
-      limit,
-    });
+  res.status(200).send({
+    capitalized,
+    totalCategories,
+    totalPages,
+    nextPage,
+    prevPage,
+    page,
+    limit,
+  });
 });
 
 // GET SINGLE CATEGORY
@@ -91,20 +89,19 @@ const getSingleCategory = asyncHandler(async (req, res) => {
 
 // POST [ NEW CATEGORY ]
 const createCategory = asyncHandler(async (req, res) => {
-  const { name } = req.body;
-
   // JOI VALIDATION CHECK
-  const { error } = validateCategory(req.body);
+  const { error, value } = validateCategory(req.body);
   if (error) return res.status(400).send({ message: error.details[0].message });
 
-  const trimmedName = name.trim()
+  req.body = value;
+  const { name } = req.body;
 
   // DUPLICATION CHECK
-  let category = await Category.findOne({ name : trimmedName });
+  let category = await Category.findOne({ name });
   if (category)
     return res.status(400).send({ message: "Category already exists!" });
 
-  category = new Category({name: trimmedName});
+  category = new Category({ name });
   await category.save();
   res.status(200).send({ message: "Category created succssfully!" });
 });
@@ -126,19 +123,19 @@ const deleteCategory = asyncHandler(async (req, res) => {
 
 // UPDATE CATEGORY
 const updateCategory = asyncHandler(async (req, res) => {
-  const { name } = req.body;
   const id = req.params.id;
 
-  const { error } = validateCategory(req.body);
+  const { error, value } = validateCategory(req.body);
   if (error) return res.status(400).send({ message: error.details[0].message });
 
-  const trimmedName = name.trim()
+  req.body = value;
+  const { name } = req.body;
 
-  let category = await Category.findOne({ name: trimmedName, _id: { $ne: id } });
+  let category = await Category.findOne({ name, _id: { $ne: id } });
   if (category)
     return res.status(400).send({ message: "Category already exists!" });
 
-  category = await Category.findByIdAndUpdate(id, {name: trimmedName}, { new: true });
+  category = await Category.findByIdAndUpdate(id, req.body, { new: true });
   if (!category)
     return res.status(400).send({ message: "Category not found!" });
   res.status(200).send({ message: "Category updated successfully!" });

@@ -14,12 +14,14 @@ const checkPublisher = checkRoles(["Publisher"]);
 
 router.route("/")
   .get (getAllUsers)
-  .post (verifyJWT, checkAdmin, createUser);
+  // .post (verifyJWT, checkAdmin, createUser);
+  .post(createUser)
 
 router
   .route("/:id")
   .get (verifyJWT, getSingleUser)
   .patch (verifyJWT, updateUser)
-  .delete (verifyJWT, checkAdmin, deleteUser);
+  // .delete (verifyJWT, checkAdmin, deleteUser);
+  .delete(deleteUser)
 
 module.exports = router;
