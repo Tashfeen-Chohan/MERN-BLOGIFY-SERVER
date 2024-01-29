@@ -74,6 +74,8 @@ const getSingleCategory = asyncHandler(async (req, res) => {
   if (!category)
     return res.status(400).send({ message: "Category not found!" });
 
+  const totalPosts = await Post.countDocuments({categories: req.params.id})    
+
   // CAPITALIZED NAME PROPERTY
   const words = category.name.split(" ");
   const capWords = words.map((word) => {
@@ -84,7 +86,7 @@ const getSingleCategory = asyncHandler(async (req, res) => {
     name: capWords.join(" "),
   };
 
-  res.status(200).send(capitalized);
+  res.status(200).send({capitalized, totalPosts});
 });
 
 // POST [ NEW CATEGORY ]

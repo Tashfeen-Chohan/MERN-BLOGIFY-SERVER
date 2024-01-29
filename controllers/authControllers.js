@@ -6,15 +6,17 @@ const jwt = require("jsonwebtoken");
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) return res.status(400).send({ message: "All fields are required!" });
+  if (!email || !password)
+    return res.status(400).send({ message: "All fields are required!" });
 
-  const user = await User.findOne({email});
+  const user = await User.findOne({ email });
   if (!user) return res.status(400).send({ message: "Invalid Credentials!" });
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) return res.status(400).send({ message: "Invalid Credentials!" });
+  if (!isPasswordValid)
+    return res.status(400).send({ message: "Invalid Credentials!" });
 
-  const token = jwt.sign(
+  const accessToken = jwt.sign(
     {
       UserInfo: {
         id: user._id,
@@ -26,26 +28,26 @@ const login = asyncHandler(async (req, res) => {
     { expiresIn: "7d" }
   );
 
-  res.cookie("token", token, {
-    httpOnly: true,
-    sameSite: true,
-    maxAge: 7 * 24 * 60 * 60 * 1000
-  })
+  // res.cookie("jwt", accessToken, {
+  //   httpOnly: true,
+  //   sameSite: "lax",
+  //   maxAge: 7 * 24 * 60 * 60 * 1000,
+  //   path: "/", // Check and set the path
+  // });
+  res.cookie("jwt", accessToken)
 
-  res.status(200).send({message: "Login Sucessfull!", token})
+  res.status(200).send({ message: "Login Sucessfull!", accessToken });
 });
 
 const logout = asyncHandler(async (req, res) => {
-  const cookies = req.cookies.token
-  if (!cookies) return res.sendStatus(204) // NO CONTENT
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: true,
-  })
-  res.status(200).send({message: "Logout Successfull!"})
-})
+  // const cookies = req.cookies.jwt;
+  // if (!cookies) return res.sendStatus(204); // NO CONTENT
+
+  res.clearCookie("jwt")
+  res.status(200).send({ message: "Logout Successfull!" });
+});
 
 module.exports = {
   login,
-  logout
-}
+  logout,
+};

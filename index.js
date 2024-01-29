@@ -33,8 +33,13 @@ app.post("/upload", upload.single("file"), asyncHandler(async (req, res) => {
 
 // MIDDLEWARE FUNCTIONS
 app.use(express.json());
-app.use(cookieParser())
 app.use(cors(corsOptions))
+// app.use(cors({
+//   origin: ["http://localhost:5173"],
+//   methods: ["GET", "POST", "PUT", "DELETE"],
+//   credentials: true
+// }))
+app.use(cookieParser())
 
 // API ENDPOINTS
 app.use("/categories", require("./routes/categoryRoutes"))

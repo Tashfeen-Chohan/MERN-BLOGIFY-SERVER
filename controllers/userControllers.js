@@ -113,14 +113,14 @@ const createUser = asyncHandler(async (req, res) => {
 const updateUser = asyncHandler(async (req, res) => {
   const { username, email } = req.body;
   const { id } = req.params;
-  const authenticatedUser = req.user.id;
+  // const authenticatedUser = req.user.id;
 
   // Check if the authenticated user is the not owner or not an admin
-  if (authenticatedUser !== id && req.user.roles.indexOf("Admin") === -1)
-    return res.status(401).send({
-      message:
-        "Unauthorized: You can only update your own profile or be an Admin!",
-    });
+  // if (authenticatedUser !== id && req.user.roles.indexOf("Admin") === -1)
+  //   return res.status(401).send({
+  //     message:
+  //       "Unauthorized: You can only update your own profile or be an Admin!",
+  //   });
 
   const { error } = validateUser(req.body);
   if (error) return res.status(400).send({ message: error.details[0].message });
@@ -137,15 +137,15 @@ const updateUser = asyncHandler(async (req, res) => {
       .status(400)
       .send({ message: "Can't update. Email already exists!" });
 
-  const verifyUser = await User.findOne({ username: req.user.username });
-  if (!verifyUser)
-    return res
-      .status(401)
-      .send({ message: "Forbidden: You can update only your profile!" });
+  // const verifyUser = await User.findOne({ username: req.user.username });
+  // if (!verifyUser)
+  //   return res
+  //     .status(401)
+  //     .send({ message: "Forbidden: You can update only your profile!" });
 
   user = await User.findByIdAndUpdate(id, req.body, { new: true });
   if (!user) return res.status(400).send({ message: "User not found!" });
-  res.status(200).send({ message: "User updated successfully!" });
+  res.status(200).send({ message: "Account updated successfully!" });
 });
 
 // DELETE USER

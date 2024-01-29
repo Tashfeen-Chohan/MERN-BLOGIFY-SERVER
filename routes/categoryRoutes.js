@@ -9,22 +9,18 @@ const {
 const verifyJWT = require("../middlewares/verifyJWT");
 const checkRoles = require("../middlewares/checkRoles")
 
-const checkAdmin = checkRoles(["Publisher", "Admin"])
+const checkAdmin = checkRoles(["Admin"])
 const checkPublisher = checkRoles(["Publisher"])
 
 router
   .route ("/")
   .get (getAllCategories)
-  // .post (verifyJWT, checkPublisher, createCategory);
-  .post(createCategory)
+  .post (verifyJWT, checkPublisher, createCategory);
 
 router
   .route ("/:id")
-  // .get (verifyJWT, getSingleCategory)
-  .get(getSingleCategory)
-  // .patch (verifyJWT, checkAdmin, updateCategory)
-  .patch(updateCategory)
-  // .delete (verifyJWT, checkAdmin, deleteCategory);
-  .delete(deleteCategory)
+  .get (getSingleCategory)
+  .patch (verifyJWT, checkAdmin, updateCategory)
+  .delete (verifyJWT, checkAdmin, deleteCategory);
 
 module.exports = router;
