@@ -5,6 +5,7 @@ const {
   createUser,
   updateUser,
   deleteUser,
+  changePassword,
 } = require("../controllers/userControllers");
 const verifyJWT = require("../middlewares/verifyJWT");
 const checkRoles = require("../middlewares/checkRoles");
@@ -14,13 +15,11 @@ const checkPublisher = checkRoles(["Publisher"]);
 
 router.route("/")
   .get (getAllUsers)
-  .post (verifyJWT, checkAdmin, createUser);
-  // .post(createUser)
-
+  .post (verifyJWT, checkAdmin, createUser)
+  .patch(verifyJWT, changePassword)
 router
   .route("/:id")
-  .get (verifyJWT, getSingleUser)
-  // .get(getSingleUser)
+  .get(getSingleUser)
   .patch (verifyJWT, updateUser)
   // .patch(updateUser)
   .delete (verifyJWT, checkAdmin, deleteUser);

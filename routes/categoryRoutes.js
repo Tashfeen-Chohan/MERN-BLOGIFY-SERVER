@@ -9,7 +9,7 @@ const {
 const verifyJWT = require("../middlewares/verifyJWT");
 const checkRoles = require("../middlewares/checkRoles")
 
-const checkAdmin = checkRoles(["Admin"])
+const checkAdmin = checkRoles(["Admin", "Publisher"])
 const checkPublisher = checkRoles(["Publisher"])
 
 router

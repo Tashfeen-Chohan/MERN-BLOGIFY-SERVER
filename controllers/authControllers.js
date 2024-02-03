@@ -28,13 +28,10 @@ const login = asyncHandler(async (req, res) => {
     { expiresIn: "7d" }
   );
 
-  // res.cookie("jwt", accessToken, {
-  //   httpOnly: true,
-  //   sameSite: "lax",
-  //   maxAge: 7 * 24 * 60 * 60 * 1000,
-  //   path: "/", // Check and set the path
-  // });
-  res.cookie("jwt", accessToken)
+  res.cookie("jwt", accessToken, {
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
 
   res.status(200).send({ message: "Login Sucessfull!", accessToken });
 });
@@ -43,7 +40,8 @@ const logout = asyncHandler(async (req, res) => {
   // const cookies = req.cookies.jwt;
   // if (!cookies) return res.sendStatus(204); // NO CONTENT
 
-  res.clearCookie("jwt")
+  // Clear the cookie by setting an empty value and an expired date
+  res.cookie("jwt", '', { expires: new Date(0) });
   res.status(200).send({ message: "Logout Successfull!" });
 });
 
