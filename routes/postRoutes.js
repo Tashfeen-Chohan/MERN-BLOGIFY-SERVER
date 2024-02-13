@@ -5,6 +5,9 @@ const {
   createPost,
   updatePost,
   deletePost,
+  likePost,
+  viewPost,
+  unlikePost,
 } = require("../controllers/postControllers");
 const verifyJWT = require("../middlewares/verifyJWT");
 const checkRoles = require("../middlewares/checkRoles")
@@ -24,5 +27,17 @@ router
   .get(getSinglePost)
   .patch(verifyJWT, checkPublisher, updatePost)
   .delete(verifyJWT, checkPublisher, deletePost);
+
+router
+  .route("/:id/like")
+  .post(verifyJWT, likePost)
+  
+router
+  .route("/:id/unlike")
+  .post(verifyJWT, unlikePost)  
+  
+router
+  .route("/:id/view")
+  .post(viewPost)  
 
 module.exports = router;

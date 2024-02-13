@@ -128,7 +128,7 @@ const updateUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const authenticatedUser = req.user.id;
 
-  // Check if the authenticated user is the not owner or not an admin
+  // Check if the authenticated user is  owner or  an admin
   if (authenticatedUser !== id && req.user.roles.indexOf("Admin") === -1)
     return res.status(401).send({
       message:
@@ -204,7 +204,7 @@ const changePassword = asyncHandler(async (req, res) => {
   user.password = hashedNewPassword;
   await user.save();
 
-  return res.status(200).send({ message: "Password updated successfully!" });
+  return res.status(200).send({ message: "Password updated successfully! Now login again with new Password!" });
 });
 
 module.exports = {

@@ -15,8 +15,9 @@ const checkPublisher = checkRoles(["Publisher"]);
 
 router.route("/")
   .get (getAllUsers)
-  .post (verifyJWT, checkAdmin, createUser)
+  .post (createUser)
   .patch(verifyJWT, changePassword)
+  
 router
   .route("/:id")
   .get(getSingleUser)

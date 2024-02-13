@@ -5,6 +5,10 @@ const postSchema = new mongoose.Schema(
   {
     title: { type: String, require: true },
     content: { type: String, require: true },
+    blogImg: {type: String},
+    popular: {type: Boolean, default: false},
+    likes: {type: Number, default: 0},
+    views: {type: Number, default: 0},
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -27,6 +31,7 @@ const validatePost = (post) => {
     content: Joi.string().min(10).required(),
     author: Joi.string().required(),
     categories: Joi.array().items(Joi.string().required()),
+    blogImg: Joi.string()
   });
   return schema.validate(post);
 };
