@@ -7,7 +7,7 @@ const getAllCategories = asyncHandler(async (req, res) => {
   const sortBy = req.query.sortBy || "";
   const searchBy = req.query.searchBy || "";
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 5;
+  const limit = parseInt(req.query.limit) || 10;
 
   let sortQuery = { updatedAt: -1 };
 
@@ -39,26 +39,8 @@ const getAllCategories = asyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limit);
 
-  // if (!categories?.length) {
-  //   return res.status(400).send({ message: "No category found!" });
-  // }
-
-  // Capitalize  each category name
-  const capitalized = categories.map((category) => {
-    const words = category.name.split(" ");
-
-    const capWords = words.map((word) => {
-      return word.charAt(0).toUpperCase() + word.slice(1);
-    });
-
-    return {
-      ...category.toObject(),
-      name: capWords.join(" "),
-    };
-  });
-
   res.status(200).send({
-    capitalized,
+    categories,
     totalCategories,
     totalPages,
     nextPage,
@@ -76,17 +58,7 @@ const getSingleCategory = asyncHandler(async (req, res) => {
 
   const totalPosts = await Post.countDocuments({categories: req.params.id})    
 
-  // CAPITALIZED NAME PROPERTY
-  const words = category.name.split(" ");
-  const capWords = words.map((word) => {
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  });
-  const capitalized = {
-    ...category.toObject(),
-    name: capWords.join(" "),
-  };
-
-  res.status(200).send({capitalized, totalPosts});
+  res.status(200).send({category, totalPosts});
 });
 
 // POST [ NEW CATEGORY ]
@@ -95,11 +67,11 @@ const createCategory = asyncHandler(async (req, res) => {
   const { error, value } = validateCategory(req.body);
   if (error) return res.status(400).send({ message: error.details[0].message });
 
-  req.body = value;
-  const { name } = req.body;
+  const { name } = value;
+  const lowercaseName = name.toLowerCase()
 
   // DUPLICATION CHECK
-  let category = await Category.findOne({ name });
+  let category = await Category.findOne({ name: lowercaseName });
   if (category)
     return res.status(400).send({ message: "Category already exists!" });
 

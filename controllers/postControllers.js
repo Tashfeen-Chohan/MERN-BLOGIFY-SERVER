@@ -137,7 +137,7 @@ const viewPost = asyncHandler(async (req, res) => {
   if (!post) return res.status(404).json({ message: 'Post not found' });
   
   post.views += 1;
-  if (post.views >= 10 && !post.popular){
+  if (post.views >= 50 && !post.popular){
     post.popular = true;
   }
   await post.save();

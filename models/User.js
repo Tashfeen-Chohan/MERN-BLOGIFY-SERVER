@@ -4,10 +4,10 @@ const passwordComplexity = require("joi-password-complexity")
 
 const userSchema = new mongoose.Schema(
   {
-    username: { type: String, unique: true, lowercase: true, require: true },
+    username: { type: String, unique: true, require: true },
     email: { type: String, unique: true, lowercase: true, require: true },
     password: { type: String, require: true },
-    profile: {type: String, default: "https://firebasestorage.googleapis.com/v0/b/mern-blogify.appspot.com/o/UserProfiles%2Fcowboy_6543190.pngc8eb353c-10f8-4987-8754-0c77a28d5035?alt=media&token=ca8bd27d-3ca8-4a81-98fc-1d782b0c9711"},
+    profile: {type: String, default: "https://firebasestorage.googleapis.com/v0/b/mern-blogify.appspot.com/o/UserProfiles%2Fcowboy.pngf12778f1-7c17-4b29-a59b-c1645d28c749?alt=media&token=3474fe39-1911-4521-8b2e-a96db419af75"},
     roles: { type: [String], default: ["User"] },
   },
   { timestamps: true }
@@ -25,8 +25,8 @@ const complexityOptions = {
 
 const validateUser = (user) => {
   const schema = Joi.object({
-    username: Joi.string().min(3).required(),
-    email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com'] } }),
+    username: Joi.string().trim().min(3).required(),
+    email: Joi.string().trim().email({ minDomainSegments: 2, tlds: { allow: ['com'] } }),
     password: passwordComplexity(complexityOptions),
     profile: Joi.string(),
     roles: Joi.array().items(Joi.string().valid("User", "Publisher", "Admin"))

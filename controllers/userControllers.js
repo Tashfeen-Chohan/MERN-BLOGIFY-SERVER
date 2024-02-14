@@ -50,23 +50,8 @@ const getAllUsers = asyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limit);
 
-  // if (!users?.length)
-  //   return res.status(400).send({ message: "No user found!" });
-
-  // CAPITALIZING USERNAME
-  const capitalized = users.map((user) => {
-    const words = user.username.split(" ");
-    const capWords = words.map((word) => {
-      return word.charAt(0).toUpperCase() + word.slice(1);
-    });
-    return {
-      ...user.toObject(),
-      username: capWords.join(" "),
-    };
-  });
-
   res.status(200).send({
-    capitalized,
+    users,
     totalUsers,
     totalPages,
     nextPage,
@@ -82,42 +67,35 @@ const getSingleUser = asyncHandler(async (req, res) => {
   const user = await User.findById(id).select("-password");
   if (!user) return res.status(400).send({ message: "No user found!" });
 
-  // CAPITALIZING USERNAME
-  const words = user.username.split(" ");
-  const capWords = words.map((word) => {
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  });
-  const capitalized = {
-    ...user.toObject(),
-    username: capWords.join(" "),
-  };
-
   const totalPosts = await Post.countDocuments({ author: req.params.id });
 
   res.status(200).send({
-    capitalized,
+    user,
     totalPosts,
   });
 });
 
 // POST USER
 const createUser = asyncHandler(async (req, res) => {
-  const { profile, username, email, password, roles } = req.body;
 
-  const { error } = validateUser(req.body);
+  const { error, value } = validateUser(req.body);
   if (error) return res.status(400).send({ message: error.details[0].message });
 
-  let user = await User.findOne({ username });
+  const {username, email, password} = value
+  const lowercaseUsername  = username.toLowerCase()
+  const lowercaseEmail  = email.toLowerCase()
+
+  let user = await User.findOne({ username: lowercaseUsername });
   if (user) return res.status(400).send({ message: "Username already taken!" });
 
-  user = await User.findOne({ email });
+  user = await User.findOne({ email: lowercaseEmail });
   if (user)
     return res
       .status(400)
       .send({ message: "User with that email already exists!" });
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  user = new User({ ...req.body, password: hashedPassword });
+  user = new User({ ...value, password: hashedPassword });
   await user.save();
   res.status(200).send({ message: "User created successfully!" });
 });
@@ -149,12 +127,6 @@ const updateUser = asyncHandler(async (req, res) => {
     return res
       .status(400)
       .send({ message: "Can't update. Email already exists!" });
-
-  const verifyUser = await User.findOne({ username: req.user.username });
-  if (!verifyUser)
-    return res
-      .status(401)
-      .send({ message: "Forbidden: You can update only your profile!" });
 
   user = await User.findByIdAndUpdate(id, req.body, { new: true });
   if (!user) return res.status(400).send({ message: "User not found!" });
