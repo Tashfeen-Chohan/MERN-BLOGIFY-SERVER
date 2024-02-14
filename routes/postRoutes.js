@@ -30,14 +30,14 @@ router
 
 router
   .route("/:id/like")
-  .post(verifyJWT, likePost)
+  .patch(verifyJWT, likePost)
   
 router
   .route("/:id/unlike")
-  .post(verifyJWT, unlikePost)  
+  .patch(verifyJWT, unlikePost)  
   
 router
   .route("/:id/view")
-  .post(viewPost)  
+  .patch(viewPost)  
 
 module.exports = router;
