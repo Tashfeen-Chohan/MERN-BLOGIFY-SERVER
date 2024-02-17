@@ -31,11 +31,7 @@ router
 router
   .route("/:id/like")
   .patch(verifyJWT, likePost)
-  
-router
-  .route("/:id/unlike")
-  .patch(verifyJWT, unlikePost)  
-  
+    
 router
   .route("/:id/view")
   .patch(viewPost)  

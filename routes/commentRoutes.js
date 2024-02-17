@@ -9,11 +9,11 @@ const checkAdmin = checkRoles(["Admin", "Publisher"])
 // GET ALL COMMENT
 router.get("/", verifyJWT, checkAdmin, getAllComments)
 // GET POST COMMENT
-router.get("/getPostComments/:postId", verifyJWT, getPostComments)
+router.get("/getPostComments/:postId",  getPostComments)
 // CREATE COMMENT
 router.post("/create", verifyJWT, createComment)
 // LIKE COMMENT 
-router.post("/likeComment/:commentId", verifyJWT, likeComment)
+router.patch("/likeComment/:commentId", verifyJWT, likeComment)
 // EDIT COMMENT
 router.patch("/editComment/:commentId", verifyJWT, editComment)
 // DELETE COMMENT

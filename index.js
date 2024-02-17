@@ -3,13 +3,9 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser")
-const multer = require("multer")
-const asyncHandler = require("express-async-handler")
 const cors = require('cors');
 const corsOptions = require("./config/corsOptions")
 const PORT = process.env.PORT  || 3000;
-const bcrypt = require("bcrypt");
-
 
 // DATABASE CONNECTION
 const DATABASE = process.env.MONGODB_URL
