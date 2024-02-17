@@ -7,7 +7,7 @@ const {
   deletePost,
   likePost,
   viewPost,
-  unlikePost,
+  getTotalLikesAndViews,
 } = require("../controllers/postControllers");
 const verifyJWT = require("../middlewares/verifyJWT");
 const checkRoles = require("../middlewares/checkRoles")
@@ -20,6 +20,10 @@ router
   .route("/")
   .get(getAllPosts)
   .post(verifyJWT, checkPublisher, createPost);
+
+router
+  .route("/likes-views")
+  .get(getTotalLikesAndViews)
 
 
 router

@@ -66,6 +66,31 @@ const getAllPosts = asyncHandler(async (req, res) => {
   });
 });
 
+// Function to get total likes and views
+const getTotalLikesAndViews = async (req, res) => {
+  try {
+    const result = await Post.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalLikes: { $sum: "$likes" },
+          totalViews: { $sum: "$views" }
+        }
+      }
+    ]);
+
+    // Extracting total likes and views from result
+    const { totalLikes, totalViews } = result[0];
+    res.status(200).send({totalLikes, totalViews})
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send({message: "Internal Server Error!"})
+  }
+};
+
+
+
+
 // GET SINGLE POST REQUEST
 const getSinglePost = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -169,6 +194,7 @@ const viewPost = asyncHandler(async (req, res) => {
 module.exports = {
   createPost,
   getAllPosts,
+  getTotalLikesAndViews,
   getSinglePost,
   updatePost,
   deletePost,
