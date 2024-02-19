@@ -50,6 +50,37 @@ const getAllCategories = asyncHandler(async (req, res) => {
   });
 });
 
+// TOTAL CATEGORIES [NUMBERS]
+const totalCategories = asyncHandler(async (req, res) => {
+
+  const total = await Category.countDocuments()
+
+  const now = new Date();
+  const oneMonthAgo = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    now.getDate()
+  );
+
+  const lastMonth = await Category.countDocuments({
+    createdAt: { $gte: oneMonthAgo },
+  });
+
+  // Calculate one week ago
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); 
+
+  const lastWeek = await Category.countDocuments({
+    createdAt: { $gte: oneWeekAgo },
+  });
+
+  res.status(200).send({
+    total,
+    lastWeek,
+    lastMonth,
+  })
+
+})
+
 // GET SINGLE CATEGORY
 const getSingleCategory = asyncHandler(async (req, res) => {
   const category = await Category.findById(req.params.id);
@@ -116,6 +147,7 @@ const updateCategory = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  totalCategories,
   getAllCategories,
   getSingleCategory,
   createCategory,

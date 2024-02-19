@@ -43,6 +43,25 @@ const getAllPosts = asyncHandler(async (req, res) => {
 
 
   const totalPosts = await Post.countDocuments(searchQuery)
+  const allPosts = await Post.countDocuments()
+
+  const now = new Date();
+  const oneMonthAgo = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    now.getDate()
+  );
+
+  const lastMonthPosts = await Post.countDocuments({
+    createdAt: { $gte: oneMonthAgo },
+  });
+
+  // Calculate one week ago
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); 
+
+  const lastWeekPosts = await Post.countDocuments({
+    createdAt: { $gte: oneWeekAgo },
+  });
 
   let posts = await Post.find(searchQuery)
     .sort(sortQuery)
@@ -61,8 +80,10 @@ const getAllPosts = asyncHandler(async (req, res) => {
   
   res.status(200).send({
     posts,
-    // postsWithComments,
     totalPosts,
+    allPosts,
+    lastWeekPosts,
+    lastMonthPosts
   });
 });
 

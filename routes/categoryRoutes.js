@@ -5,6 +5,7 @@ const {
   createCategory,
   updateCategory,
   deleteCategory,
+  totalCategories,
 } = require("../controllers/categoryControllers");
 const verifyJWT = require("../middlewares/verifyJWT");
 const checkRoles = require("../middlewares/checkRoles")
@@ -16,6 +17,10 @@ router
   .route ("/")
   .get (getAllCategories)
   .post (verifyJWT, checkPublisher, createCategory);
+
+router
+  .route ("/total-categories")
+  .get(totalCategories)
 
 router
   .route ("/:id")
