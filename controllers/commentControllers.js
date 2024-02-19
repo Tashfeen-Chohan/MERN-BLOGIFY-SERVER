@@ -3,31 +3,68 @@ const asyncHandler = require("express-async-handler");
 
 // GET ALL COMMENTS
 const getAllComments = asyncHandler(async (req, res) => {
-  const comments = await Comment.find();
-  res.status(200).send(comments);
+  const sortBy = req.query.sortBy || ""
+  const page = parseInt(req.query.page) || 1
+  const limit = parseInt(req.query.limit) || 10;
+
+  // SORTING
+  let sortQuery = {createdAt: -1}
+  if (sortBy){
+    if (sortBy === "oldest"){
+      sortQuery = {createdAt: 1}
+    } else if (sortBy === "likes"){
+      sortQuery = {likes: -1}
+    }
+  }
+
+  // PAGINATION
+  const totalComments = await Comment.countDocuments();
+  const totalPages = Math.ceil(totalComments / limit);
+  const skip = (page - 1) * limit;
+  const nextPage = page < totalPages ? page + 1 : null;
+  const prevPage = page > 1 ? page - 1 : null;
+
+  const comments = await Comment.find()
+  .sort(sortQuery)
+  .skip(skip)
+  .limit(limit)
+    .populate("userId", "username")
+    .populate("postId", "_id title");
+
+  res.status(200).send({ 
+    comments, 
+    totalComments,
+    totalPages,
+    page,
+    limit,
+    nextPage,
+    prevPage 
+  });
 });
 
 // GET POST COMMENTS
 const getPostComments = asyncHandler(async (req, res) => {
-  const sortBy = req.query.sortBy || ""
-  const limit = parseInt(req.query.limit) || 3
+  const sortBy = req.query.sortBy || "";
+  const limit = parseInt(req.query.limit) || 3;
 
-  let sortQuery = {createdAt : -1}
-  if (sortBy){
-    if (sortBy === "oldest"){
-      sortQuery = {createdAt: 1}
-    } else if (sortBy === "top"){
-      sortQuery = {likes: -1}
+  let sortQuery = { createdAt: -1 };
+  if (sortBy) {
+    if (sortBy === "oldest") {
+      sortQuery = { createdAt: 1 };
+    } else if (sortBy === "top") {
+      sortQuery = { likes: -1 };
     }
   }
 
   const comments = await Comment.find({ postId: req.params.postId })
     .sort(sortQuery)
     .limit(limit)
-    // POPULATING USERID FIELD WITH ID, USERNAME, PROFILE
+    // POPULATING USER FIELD WITH ID, USERNAME, PROFILE
     .populate("userId", "_id username profile");
 
-  const totalComments = await Comment.countDocuments({postId: req.params.postId});
+  const totalComments = await Comment.countDocuments({
+    postId: req.params.postId,
+  });
   res.status(200).send({
     comments,
     totalComments,
@@ -54,7 +91,7 @@ const likeComment = asyncHandler(async (req, res) => {
     comment.likes += 1;
     comment.likedBy.push(req.user.id);
     await comment.save();
-    res.status(200).send({ message:  "You've appreciated this comment! ❤️" });
+    res.status(200).send({ message: "You've appreciated this comment! ❤️" });
   } else {
     comment.likes -= 1;
     comment.likedBy.splice(userLikeIndex, 1);
