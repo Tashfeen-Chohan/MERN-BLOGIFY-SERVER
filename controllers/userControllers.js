@@ -179,6 +179,37 @@ const changePassword = asyncHandler(async (req, res) => {
   return res.status(200).send({ message: "Password updated successfully! Now login again with new Password!" });
 });
 
+// TOTAL USERS [NUMBERS]
+const totalUsers = asyncHandler(async (req, res) => {
+
+  const total = await User.countDocuments()
+
+  const now = new Date();
+  const oneMonthAgo = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    now.getDate()
+  );
+
+  const lastMonth = await User.countDocuments({
+    createdAt: { $gte: oneMonthAgo },
+  });
+
+  // Calculate one week ago
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); 
+
+  const lastWeek = await User.countDocuments({
+    createdAt: { $gte: oneWeekAgo },
+  });
+
+  res.status(200).send({
+    total,
+    lastWeek,
+    lastMonth,
+  })
+
+})
+
 module.exports = {
   getAllUsers,
   createUser,
@@ -186,4 +217,5 @@ module.exports = {
   updateUser,
   deleteUser,
   changePassword,
+  totalUsers
 };

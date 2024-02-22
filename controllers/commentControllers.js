@@ -17,6 +17,21 @@ const getAllComments = asyncHandler(async (req, res) => {
     }
   }
 
+  const now = new Date()
+  const oneMonthAgo = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    now.getDate()
+  )
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  const lastMonth = await Comment.countDocuments({
+    createdAt: { $gte: oneMonthAgo },
+  });
+  const lastWeek = await Comment.countDocuments({
+    createdAt: { $gte: oneWeekAgo },
+  });
+
   // PAGINATION
   const totalComments = await Comment.countDocuments();
   const totalPages = Math.ceil(totalComments / limit);
@@ -34,6 +49,8 @@ const getAllComments = asyncHandler(async (req, res) => {
   res.status(200).send({ 
     comments, 
     totalComments,
+    lastMonth,
+    lastWeek,
     totalPages,
     page,
     limit,

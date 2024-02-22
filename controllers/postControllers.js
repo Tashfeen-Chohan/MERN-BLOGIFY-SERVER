@@ -4,46 +4,45 @@ const asyncHandler = require("express-async-handler");
 
 // GET ALL POSTS REQUEST
 const getAllPosts = asyncHandler(async (req, res) => {
-  const searchBy = req.query.searchBy || ""
-  const sortBy = req.query.sortBy || ""
-  const filterBy = req.query.filterBy || ""
-  const authorId = req.query.authorId || ""
-  const categoryId = req.query.categoryId || ""
-  const limit = parseInt(req.query.limit) || 3
+  const searchBy = req.query.searchBy || "";
+  const sortBy = req.query.sortBy || "";
+  const filterBy = req.query.filterBy || "";
+  const authorId = req.query.authorId || "";
+  const categoryId = req.query.categoryId || "";
+  const limit = parseInt(req.query.limit) || 3;
 
-  let searchQuery = {title: {$regex: searchBy, $options: "i"}}
-  if (filterBy){
-    if (filterBy === "popular"){
-      searchQuery.popular = true
+  let searchQuery = { title: { $regex: searchBy, $options: "i" } };
+  if (filterBy) {
+    if (filterBy === "popular") {
+      searchQuery.popular = true;
     }
   }
   // ADD FILTER BY AUTHOR
-  if (authorId){
-    searchQuery.author = authorId
+  if (authorId) {
+    searchQuery.author = authorId;
   }
   // ADD FILTER BY CATEGORY
-  if (categoryId){
-    searchQuery.categories = { $in: [categoryId] }
+  if (categoryId) {
+    searchQuery.categories = { $in: [categoryId] };
   }
 
-  let sortQuery = {createdAt: -1}
-  if (sortBy){
-    if (sortBy === "title"){
-      sortQuery = {title: 1}
-    } else if (sortBy === "title desc"){
-      sortQuery = {title: -1}
-    } else if (sortBy === "oldest"){
-      sortQuery = {updatedAt: 1}
-    } else if (sortBy === "views"){
-      sortQuery = {views: -1}
-    } else if (sortBy === "likes"){
-      sortQuery = {likes: -1}
+  let sortQuery = { createdAt: -1 };
+  if (sortBy) {
+    if (sortBy === "title") {
+      sortQuery = { title: 1 };
+    } else if (sortBy === "title desc") {
+      sortQuery = { title: -1 };
+    } else if (sortBy === "oldest") {
+      sortQuery = { updatedAt: 1 };
+    } else if (sortBy === "views") {
+      sortQuery = { views: -1 };
+    } else if (sortBy === "likes") {
+      sortQuery = { likes: -1 };
     }
   }
 
-
-  const totalPosts = await Post.countDocuments(searchQuery)
-  const allPosts = await Post.countDocuments()
+  const totalPosts = await Post.countDocuments(searchQuery);
+  const allPosts = await Post.countDocuments();
 
   const now = new Date();
   const oneMonthAgo = new Date(
@@ -57,7 +56,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
   });
 
   // Calculate one week ago
-  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); 
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
   const lastWeekPosts = await Post.countDocuments({
     createdAt: { $gte: oneWeekAgo },
@@ -70,47 +69,95 @@ const getAllPosts = asyncHandler(async (req, res) => {
     .populate("author", "_id username profile")
     .populate("categories", "name _id");
 
-    // Populate comments count for each post
-    posts = await Promise.all(
-      posts.map(async (post) => {
+  // Populate comments count for each post
+  posts = await Promise.all(
+    posts.map(async (post) => {
       const commentsCount = await Comment.countDocuments({ postId: post._id });
       return { ...post.toObject(), commentsCount };
     })
-);    
-  
+  );
+
   res.status(200).send({
     posts,
     totalPosts,
     allPosts,
     lastWeekPosts,
-    lastMonthPosts
+    lastMonthPosts,
   });
 });
 
 // Function to get total likes and views
 const getTotalLikesAndViews = async (req, res) => {
   try {
+    const now = new Date();
+    const oneMonthAgo = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      now.getDate()
+    );
+
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const lastMonthResult = await Post.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: oneMonthAgo },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          lastMonthLikes: { $sum: "$likes" },
+          lastMonthViews: { $sum: "$views" },
+        },
+      },
+    ]);
+
+    const lastWeekResult = await Post.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: oneWeekAgo },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          lastWeekLikes: { $sum: "$likes" },
+          lastWeekViews: { $sum: "$views" },
+        },
+      },
+    ]);
+
     const result = await Post.aggregate([
       {
         $group: {
           _id: null,
           totalLikes: { $sum: "$likes" },
-          totalViews: { $sum: "$views" }
-        }
-      }
+          totalViews: { $sum: "$views" },
+        },
+      },
     ]);
 
-    // Extracting total likes and views from result
+    // Extracting total likes and views from results
     const { totalLikes, totalViews } = result[0];
-    res.status(200).send({totalLikes, totalViews})
+    const { lastMonthLikes, lastMonthViews } = lastMonthResult[0];
+    const { lastWeekLikes, lastWeekViews } = lastWeekResult[0];
+
+    res
+      .status(200)
+      .send({
+        totalLikes,
+        totalViews,
+        lastWeekLikes,
+        lastWeekViews,
+        lastMonthLikes,
+        lastMonthViews,
+      });
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).send({message: "Internal Server Error!"})
+    res.status(500).send({ message: "Internal Server Error!" });
   }
 };
-
-
-
 
 // GET SINGLE POST REQUEST
 const getSinglePost = asyncHandler(async (req, res) => {
@@ -119,11 +166,11 @@ const getSinglePost = asyncHandler(async (req, res) => {
     .populate("author", "_id profile username")
     .populate("categories", "_id name");
 
-  const commentsCount = await Comment.countDocuments({postId: post._id})
+  const commentsCount = await Comment.countDocuments({ postId: post._id });
   if (!post) return res.status(400).send({ message: "No post found!" });
   res.status(200).send({
     post,
-    commentsCount
+    commentsCount,
   });
 });
 
@@ -147,42 +194,46 @@ const createPost = asyncHandler(async (req, res) => {
 
 // UPDATE REQUEST
 const updatePost = asyncHandler(async (req, res) => {
-  const {id} = req.params
-  const {title, author} = req.body
+  const { id } = req.params;
+  const { title, author } = req.body;
 
-  const {error} = validatePost(req.body)
-  if (error) return res.status(400).send({message: error.details[0].message})
+  const { error } = validatePost(req.body);
+  if (error) return res.status(400).send({ message: error.details[0].message });
 
-  let post = await Post.findOne({title, author, _id: {$ne: id}})
-  if (post) return res.status(400).send({message: "Could not update! Post with same author already exists!"})
+  let post = await Post.findOne({ title, author, _id: { $ne: id } });
+  if (post)
+    return res.status(400).send({
+      message: "Could not update! Post with same author already exists!",
+    });
 
-  post = await Post.findByIdAndUpdate(id, req.body, {new: true})
-  if (!post) return res.status(400).send({message: "No post found!"})
-  res.status(200).send({message: "Post updated successfully!"})
-})
-
+  post = await Post.findByIdAndUpdate(id, req.body, { new: true });
+  if (!post) return res.status(400).send({ message: "No post found!" });
+  res.status(200).send({ message: "Post updated successfully!" });
+});
 
 // DELETE REQUEST
 const deletePost = asyncHandler(async (req, res) => {
-  const {id} = req.params
-  const post = await Post.findById(id)
-  if (!post) return res.status(400).send({message: "Post not found!"}) 
+  const { id } = req.params;
+  const post = await Post.findById(id);
+  if (!post) return res.status(400).send({ message: "Post not found!" });
 
   // ONLY OWNER & ADMIN ALLOWED
-  if (req.user.id !== post.author && req.user.roles.indexOf("Admin") === -1){
-    return res.status(403).send({message: "You are not allowed to delete this post!"})
+  if (req.user.id !== post.author && req.user.roles.indexOf("Admin") === -1) {
+    return res
+      .status(403)
+      .send({ message: "You are not allowed to delete this post!" });
   }
 
-  await Post.findByIdAndDelete(id)
+  await Post.findByIdAndDelete(id);
 
-  res.status(200).send({message: "Post deleted successfully!"})
-})
+  res.status(200).send({ message: "Post deleted successfully!" });
+});
 
 const likePost = asyncHandler(async (req, res) => {
-  const {id} = req.params
+  const { id } = req.params;
   const post = await Post.findById(id);
-  if (!post) return res.status(404).json({ message: 'Post not found' });
-  
+  if (!post) return res.status(404).json({ message: "Post not found" });
+
   const userLikeIndex = post.likedBy.indexOf(req.user.id);
   if (userLikeIndex === -1) {
     post.likes += 1;
@@ -193,24 +244,25 @@ const likePost = asyncHandler(async (req, res) => {
     post.likes -= 1;
     post.likedBy.splice(userLikeIndex, 1);
     await post.save();
-    res.status(200).send({ message: "Like removed! Your interaction matters! 🙌" });
+    res
+      .status(200)
+      .send({ message: "Like removed! Your interaction matters! 🙌" });
   }
-})
+});
 
 const viewPost = asyncHandler(async (req, res) => {
-  const {id} = req.params
+  const { id } = req.params;
   const post = await Post.findById(id);
-  if (!post) return res.status(404).json({ message: 'Post not found' });
-  
+  if (!post) return res.status(404).json({ message: "Post not found" });
+
   post.views += 1;
-  if (post.views >= 50 && !post.popular){
+  if (post.views >= 50 && !post.popular) {
     post.popular = true;
   }
   await post.save();
 
-  res.status(200).json({ message: 'Post viewed successfully' });
-
-})
+  res.status(200).json({ message: "Post viewed successfully" });
+});
 
 module.exports = {
   createPost,
