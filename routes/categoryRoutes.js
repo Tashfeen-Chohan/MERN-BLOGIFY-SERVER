@@ -18,14 +18,16 @@ router
   .get (getAllCategories)
   .post (verifyJWT, checkPublisher, createCategory);
 
-router
-  .route ("/total-categories")
-  .get(totalCategories)
+// router.route("/:slug").get(getSingleCategory)
 
 router
-  .route ("/:id")
-  .get (getSingleCategory)
+  .route ("/total-categories").get(totalCategories)
+
+router
+  .route ("/:slug")
+  .get(getSingleCategory)
   .patch (verifyJWT, checkAdmin, updateCategory)
-  .delete (verifyJWT, checkAdmin, deleteCategory);
+
+router.route("/:id").delete (verifyJWT, checkAdmin, deleteCategory);
 
 module.exports = router;

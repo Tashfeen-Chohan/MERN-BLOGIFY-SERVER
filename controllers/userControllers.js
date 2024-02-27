@@ -65,11 +65,9 @@ const getSingleUser = asyncHandler(async (req, res) => {
   const user = await User.findById(id).select("-password");
   if (!user) return res.status(400).send({ message: "No user found!" });
 
-  const totalPosts = await Post.countDocuments({ author: req.params.id });
 
   res.status(200).send({
     user,
-    totalPosts,
   });
 });
 

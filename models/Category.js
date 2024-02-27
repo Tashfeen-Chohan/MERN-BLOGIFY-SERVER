@@ -4,6 +4,7 @@ const Joi = require("joi");
 const categorySchema = new mongoose.Schema(
   {
     name: { type: String, unique: true, require: true },
+    slug: { type: String, unique: true, require: true },
     noOfPosts: {type: Number, default: 0}
   },
   { timestamps: true }
@@ -19,7 +20,16 @@ const validateCategory = (category) => {
   return schema.validate(category);
 };
 
+const updateCategory = (category) => {
+  const schema = Joi.object({
+    name: Joi.string().trim().min(2).required(),
+  });
+  return schema.validate(category);
+};
+
+
 module.exports = {
   Category,
   validateCategory,
+  updateCategory
 };

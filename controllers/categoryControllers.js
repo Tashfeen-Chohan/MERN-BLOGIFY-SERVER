@@ -1,3 +1,4 @@
+const { default: slugify } = require("slugify");
 const { Category, validateCategory } = require("../models/Category");
 const { Post } = require("../models/Post");
 const asyncHandler = require("express-async-handler");
@@ -24,8 +25,8 @@ const getAllCategories = asyncHandler(async (req, res) => {
       sortQuery = { updatedAt: 1 };
     } else if (sortBy === "date desc") {
       sortQuery = { updatedAt: -1 };
-    } else if (sortBy === "posts"){
-      sortQuery = {noOfPosts: -1}
+    } else if (sortBy === "posts") {
+      sortQuery = { noOfPosts: -1 };
     }
   }
 
@@ -83,7 +84,7 @@ const totalCategories = asyncHandler(async (req, res) => {
 
 // GET SINGLE CATEGORY
 const getSingleCategory = asyncHandler(async (req, res) => {
-  const category = await Category.findById(req.params.id);
+  const category = await Category.findOne({ slug: req.params.slug });
   if (!category)
     return res.status(400).send({ message: "Category not found!" });
 
@@ -104,9 +105,39 @@ const createCategory = asyncHandler(async (req, res) => {
   if (category)
     return res.status(400).send({ message: "Category already exists!" });
 
-  category = new Category({ name });
+  // SLUG GENERATION
+  const slug = slugify(name, { lower: true });
+
+  category = new Category({ name, slug });
   await category.save();
   res.status(200).send({ message: "Category created succssfully!" });
+});
+
+// UPDATE CATEGORY
+const updateCategory = asyncHandler(async (req, res) => {
+  const slug = req.params.slug;
+
+  const { error, value } = validateCategory(req.body);
+  if (error) return res.status(400).send({ message: error.details[0].message });
+
+  req.body = value;
+  const { name } = req.body;
+
+  let category = await Category.findOne({ name, slug: { $ne: slug } });
+  if (category)
+    return res.status(400).send({ message: "Category already exists!" });
+
+  // Generate new slug based on updated name
+  const newSlug = slugify(name, { lower: true });
+
+  category = await Category.findOneAndUpdate(
+    { slug: slug },
+    { ...req.body, slug: newSlug },
+    { new: true }
+  );
+  if (!category)
+    return res.status(400).send({ message: "Category not found!" });
+  res.status(200).send({ message: "Category updated successfully!" });
 });
 
 // DELETE CATEGORY
@@ -124,25 +155,26 @@ const deleteCategory = asyncHandler(async (req, res) => {
   res.status(200).send({ message: "Category deleted successfully!" });
 });
 
-// UPDATE CATEGORY
-const updateCategory = asyncHandler(async (req, res) => {
-  const id = req.params.id;
+const addSlugToCategories = async () => {
+  try {
+    // Fetch all categories
+    const categories = await Category.find();
 
-  const { error, value } = validateCategory(req.body);
-  if (error) return res.status(400).send({ message: error.details[0].message });
+    // Iterate over categories and update them with slug
+    for (const category of categories) {
+      const slug = slugify(category.name, { lower: true });
 
-  req.body = value;
-  const { name } = req.body;
+      // Update category with slug
+      await Category.updateOne({ _id: category._id }, { $set: { slug } });
+    }
 
-  let category = await Category.findOne({ name, _id: { $ne: id } });
-  if (category)
-    return res.status(400).send({ message: "Category already exists!" });
+    console.log("Slugs added to all categories successfully!");
+  } catch (error) {
+    console.error("Error adding slugs to categories:", error);
+  }
+};
 
-  category = await Category.findByIdAndUpdate(id, req.body, { new: true });
-  if (!category)
-    return res.status(400).send({ message: "Category not found!" });
-  res.status(200).send({ message: "Category updated successfully!" });
-});
+// addSlugToCategories()
 
 module.exports = {
   totalCategories,
