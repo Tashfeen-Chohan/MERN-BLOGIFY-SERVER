@@ -24,6 +24,8 @@ const getAllCategories = asyncHandler(async (req, res) => {
       sortQuery = { updatedAt: 1 };
     } else if (sortBy === "date desc") {
       sortQuery = { updatedAt: -1 };
+    } else if (sortBy === "posts"){
+      sortQuery = {noOfPosts: -1}
     }
   }
 
@@ -52,8 +54,7 @@ const getAllCategories = asyncHandler(async (req, res) => {
 
 // TOTAL CATEGORIES [NUMBERS]
 const totalCategories = asyncHandler(async (req, res) => {
-
-  const total = await Category.countDocuments()
+  const total = await Category.countDocuments();
 
   const now = new Date();
   const oneMonthAgo = new Date(
@@ -67,7 +68,7 @@ const totalCategories = asyncHandler(async (req, res) => {
   });
 
   // Calculate one week ago
-  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); 
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
   const lastWeek = await Category.countDocuments({
     createdAt: { $gte: oneWeekAgo },
@@ -77,9 +78,8 @@ const totalCategories = asyncHandler(async (req, res) => {
     total,
     lastWeek,
     lastMonth,
-  })
-
-})
+  });
+});
 
 // GET SINGLE CATEGORY
 const getSingleCategory = asyncHandler(async (req, res) => {
@@ -87,9 +87,7 @@ const getSingleCategory = asyncHandler(async (req, res) => {
   if (!category)
     return res.status(400).send({ message: "Category not found!" });
 
-  const totalPosts = await Post.countDocuments({categories: req.params.id})    
-
-  res.status(200).send({category, totalPosts});
+  res.status(200).send({ category });
 });
 
 // POST [ NEW CATEGORY ]
@@ -99,7 +97,7 @@ const createCategory = asyncHandler(async (req, res) => {
   if (error) return res.status(400).send({ message: error.details[0].message });
 
   const { name } = value;
-  const lowercaseName = name.toLowerCase()
+  const lowercaseName = name.toLowerCase();
 
   // DUPLICATION CHECK
   let category = await Category.findOne({ name: lowercaseName });

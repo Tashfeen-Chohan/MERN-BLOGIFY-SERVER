@@ -77,7 +77,8 @@ const getPostComments = asyncHandler(async (req, res) => {
     .sort(sortQuery)
     .limit(limit)
     // POPULATING USER FIELD WITH ID, USERNAME, PROFILE
-    .populate("userId", "_id username profile");
+    .populate("userId", "_id username profile")
+    .populate("postId", "author");
 
   const totalComments = await Comment.countDocuments({
     postId: req.params.postId,
@@ -122,11 +123,11 @@ const editComment = asyncHandler(async (req, res) => {
   let comment = await Comment.findById(req.params.commentId);
   if (!comment) return res.status(200).send({ message: "Comment not found!" });
 
-  // if (comment.userId !== req.user.id) {
-  //   return res
-  //     .status(403)
-  //     .send({ message: "You are not allowed to edit this comment!" });
-  // }
+  if (comment.userId.toString() !== req.user.id) {
+    return res
+      .status(403)
+      .send({ message: "You are not allowed to edit this comment!" });
+  }
 
   comment = await Comment.findByIdAndUpdate(
     req.params.commentId,
@@ -142,15 +143,16 @@ const deleteComment = asyncHandler(async (req, res) => {
   const comment = await Comment.findById(req.params.commentId);
   if (!comment) return res.status(400).send({ message: "Comment not found!" });
 
-  // ONLY OWNER & ADMIN ALLOWED
-  if (
-    comment.userId !== req.user.id &&
-    req.user.roles.indexOf("Admin") === -1
-  ) {
-    return res
-      .status(403)
-      .send({ message: "You are not allowed to delete this comment" });
-  }
+  // ONLY OWNER , POST PUBLISHER && ADMIN ALLOWED
+  // if (
+  //   comment.userId.toString() !== req.user.id &&
+  //   comment.postId.author.toString() !== req.user.id &&
+  //   req.user.roles.indexOf("Admin") === -1
+  // ) {
+  //   return res
+  //     .status(403)
+  //     .send({ message: "You are not allowed to delete this comment" });
+  // }
 
   await Comment.findByIdAndDelete(req.params.commentId);
   res.status(200).send({ message: "Comment deleted successfully!" });

@@ -6,6 +6,7 @@ const {
   updateUser,
   deleteUser,
   changePassword,
+  totalUsers,
 } = require("../controllers/userControllers");
 const verifyJWT = require("../middlewares/verifyJWT");
 const checkRoles = require("../middlewares/checkRoles");
@@ -17,6 +18,9 @@ router.route("/")
   .get (getAllUsers)
   .post (createUser)
   .patch(verifyJWT, changePassword)
+  
+router.route("/total-users")
+  .get(totalUsers)
   
 router
   .route("/:id")

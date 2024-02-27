@@ -137,22 +137,20 @@ const getTotalLikesAndViews = async (req, res) => {
         },
       },
     ]);
-
+ 
     // Extracting total likes and views from results
     const { totalLikes, totalViews } = result[0];
     const { lastMonthLikes, lastMonthViews } = lastMonthResult[0];
     const { lastWeekLikes, lastWeekViews } = lastWeekResult[0];
 
-    res
-      .status(200)
-      .send({
-        totalLikes,
-        totalViews,
-        lastWeekLikes,
-        lastWeekViews,
-        lastMonthLikes,
-        lastMonthViews,
-      });
+    res.status(200).send({
+      totalLikes,
+      totalViews,
+      lastWeekLikes,
+      lastWeekViews,
+      lastMonthLikes,
+      lastMonthViews,
+    });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send({ message: "Internal Server Error!" });
@@ -218,7 +216,7 @@ const deletePost = asyncHandler(async (req, res) => {
   if (!post) return res.status(400).send({ message: "Post not found!" });
 
   // ONLY OWNER & ADMIN ALLOWED
-  if (req.user.id !== post.author && req.user.roles.indexOf("Admin") === -1) {
+  if (req.user.id !== post.author.toString() && req.user.roles.indexOf("Admin") === -1) {
     return res
       .status(403)
       .send({ message: "You are not allowed to delete this post!" });
