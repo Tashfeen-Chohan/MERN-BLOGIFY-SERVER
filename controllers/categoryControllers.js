@@ -9,7 +9,7 @@ const getAllCategories = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 
-  let sortQuery = { updatedAt: -1 };
+  let sortQuery = { noOfPosts: -1 };
 
   // SEARCH FUNCTIONALITY BY NAME [CASE INSENSITIVE]
   const searchQuery = { name: { $regex: searchBy, $options: "i" } };

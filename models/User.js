@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     password: { type: String, require: true },
     profile: {type: String, default: "https://firebasestorage.googleapis.com/v0/b/mern-blogify.appspot.com/o/UserProfiles%2Fcowboy.pngf12778f1-7c17-4b29-a59b-c1645d28c749?alt=media&token=3474fe39-1911-4521-8b2e-a96db419af75"},
     roles: { type: [String], default: ["User"] },
+    noOfPosts: {type: Number, default: 0}
   },
   { timestamps: true }
 );

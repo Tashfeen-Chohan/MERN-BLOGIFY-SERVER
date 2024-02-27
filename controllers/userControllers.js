@@ -11,7 +11,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 5;
 
-  let sortQuery = { updatedAt: -1 };
+  let sortQuery = { noOfPosts: -1 };
 
   // SEARCH FUNCTIONALITY BY NAME [CASE INSENSITIVE]
   let searchQuery = { username: { $regex: searchBy, $options: "i" } };
@@ -26,14 +26,12 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
   // SORTING
   if (sortBy) {
-    if (sortBy === "name") {
-      sortQuery = { username: 1 };
-    } else if (sortBy === "name desc") {
-      sortQuery = { username: -1 };
-    } else if (sortBy === "date") {
+    if (sortBy === "date") {
       sortQuery = { updatedAt: 1 };
     } else if (sortBy === "date desc") {
       sortQuery = { updatedAt: -1 };
+    } else if (sortBy === "posts"){
+      sortQuery = { noOfPosts: -1 }
     }
   }
 
