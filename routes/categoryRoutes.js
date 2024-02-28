@@ -18,7 +18,6 @@ router
   .get (getAllCategories)
   .post (verifyJWT, checkPublisher, createCategory);
 
-// router.route("/:slug").get(getSingleCategory)
 
 router
   .route ("/total-categories").get(totalCategories)

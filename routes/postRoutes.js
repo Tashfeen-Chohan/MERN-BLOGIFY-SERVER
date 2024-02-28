@@ -22,14 +22,19 @@ router
   .post(verifyJWT, checkPublisher, createPost);
 
 router
+  .route("/:slug")
+  .get(getSinglePost)
+  .patch(verifyJWT, checkPublisher, updatePost)
+
+router
   .route("/likes-views")
   .get(getTotalLikesAndViews)
 
 
 router
   .route("/:id")
-  .get(getSinglePost)
-  .patch(verifyJWT, checkPublisher, updatePost)
+  // .get(getSinglePost)
+  // .patch(verifyJWT, checkPublisher, updatePost)
   .delete(verifyJWT, checkPublisher, deletePost);
 
 router

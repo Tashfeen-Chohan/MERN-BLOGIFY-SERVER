@@ -4,6 +4,7 @@ const Joi = require("joi");
 const postSchema = new mongoose.Schema(
   {
     title: { type: String, require: true },
+    slug: {type: String, unique: true, require: true},
     content: { type: String, require: true },
     blogImg: {type: String},
     popular: {type: Boolean, default: false},

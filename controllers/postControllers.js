@@ -1,4 +1,6 @@
+const { default: slugify } = require("slugify");
 const { Comment } = require("../models/Comment");
+const {User} = require("../models/User")
 const { Post, validatePost } = require("../models/Post");
 const asyncHandler = require("express-async-handler");
 
@@ -23,7 +25,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
   }
   // ADD FILTER BY CATEGORY
   if (categoryId) {
-    searchQuery.categories = { $in: [categoryId] };
+    searchQuery.posts = { $in: [categoryId] };
   }
 
   let sortQuery = { createdAt: -1 };
@@ -159,8 +161,8 @@ const getTotalLikesAndViews = async (req, res) => {
 
 // GET SINGLE POST REQUEST
 const getSinglePost = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const post = await Post.findById(id)
+  const { slug } = req.params;
+  const post = await Post.findOne({slug})
     .populate("author", "_id profile username")
     .populate("categories", "_id name");
 
@@ -179,33 +181,54 @@ const createPost = asyncHandler(async (req, res) => {
   const { error } = validatePost(req.body);
   if (error) return res.status(400).send({ message: error.details[0].message });
 
-  let post = await Post.findOne({ title, author });
+  // Generate slug based on title and author information
+  const authorDoc = await User.findById(author); // Assuming you have a User model
+  const authorName = authorDoc ? authorDoc.username : "unknown"; // Use 'unknown' if author is not found
+  const titleSlug = slugify(title, { lower: true });
+  const authorSlug = slugify(authorName, { lower: true });
+  const slug = `${titleSlug}__${authorSlug}`;
+
+  // DUPLICATE CHECK
+  let post = await Post.findOne({ slug });
   if (post)
     return res
       .status(400)
-      .send({ message: "Post with same Author already exists!" });
-
-  post = new Post(req.body);
+      .send({ message: "Post with same Title & Author already exists!" });
+    
+  post = new Post({ ...req.body, slug });
   await post.save();
-  res.status(200).send({ message: "Post created successfully!", post });
+  res.status(200).send({ message: "Post created successfully!", post});
 });
 
 // UPDATE REQUEST
 const updatePost = asyncHandler(async (req, res) => {
-  const { id } = req.params;
+  const { slug } = req.params;
   const { title, author } = req.body;
 
   const { error } = validatePost(req.body);
   if (error) return res.status(400).send({ message: error.details[0].message });
 
-  let post = await Post.findOne({ title, author, _id: { $ne: id } });
+  let post = await Post.findOne({ title, author, slug: { $ne: slug } });
   if (post)
     return res.status(400).send({
       message: "Could not update! Post with same author already exists!",
     });
 
-  post = await Post.findByIdAndUpdate(id, req.body, { new: true });
-  if (!post) return res.status(400).send({ message: "No post found!" });
+   // Generate the new slug based on updated title and author
+   const authorDoc = await User.findById(author); // Assuming you have a User model
+   const authorName = authorDoc ? authorDoc.username : "unknown"; // Use 'unknown' if author is not found
+   const titleSlug = slugify(title, { lower: true });
+   const authorSlug = slugify(authorName, { lower: true });
+   const newSlug = `${titleSlug}__${authorSlug}`;
+
+  // Update post with new slug and other fields
+  post = await Post.findOneAndUpdate(
+    { slug },
+    { ...req.body, slug: newSlug },
+    { new: true }
+  );
+  
+  if (!post) return res.status(400).send({ message: "Post not found!" });
   res.status(200).send({ message: "Post updated successfully!" });
 });
 
@@ -261,6 +284,30 @@ const viewPost = asyncHandler(async (req, res) => {
 
   res.status(200).json({ message: "Post viewed successfully" });
 });
+
+const addSlugToPosts = async () => {
+  try {
+    // Fetch all posts
+    const posts = await Post.find();
+
+    // Iterate over posts and update them with slug
+    for (const post of posts) {
+      const authorDoc = await User.findById(post.author); // Assuming you have a User model
+      const authorName = authorDoc ? authorDoc.username : "unknown"; // Use 'unknown' if author is not found
+      const titleSlug = slugify(post.title, { lower: true });
+      const authorSlug = slugify(authorName, { lower: true });
+      const slug = `${titleSlug}__${authorSlug}`;
+
+      // Update post with slug
+      await Post.updateOne({ _id: post._id }, { $set: { slug } });
+    }
+
+    console.log("Slugs added to all posts successfully!");
+  } catch (error) {
+    console.error("Error adding slugs to posts:", error);
+  }
+};
+
 
 module.exports = {
   createPost,

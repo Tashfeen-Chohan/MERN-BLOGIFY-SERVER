@@ -20,16 +20,8 @@ const validateCategory = (category) => {
   return schema.validate(category);
 };
 
-const updateCategory = (category) => {
-  const schema = Joi.object({
-    name: Joi.string().trim().min(2).required(),
-  });
-  return schema.validate(category);
-};
-
 
 module.exports = {
   Category,
   validateCategory,
-  updateCategory
 };
