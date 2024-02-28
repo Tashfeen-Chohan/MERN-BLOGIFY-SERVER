@@ -2,6 +2,7 @@ const { default: slugify } = require("slugify");
 const { Comment } = require("../models/Comment");
 const {User} = require("../models/User")
 const { Post, validatePost } = require("../models/Post");
+const {Category} = require("../models/Category")
 const asyncHandler = require("express-async-handler");
 
 // GET ALL POSTS REQUEST
@@ -176,7 +177,7 @@ const getSinglePost = asyncHandler(async (req, res) => {
 
 // POST REQUEST
 const createPost = asyncHandler(async (req, res) => {
-  const { title, author } = req.body;
+  const { title, author, categories } = req.body;
 
   const { error } = validatePost(req.body);
   if (error) return res.status(400).send({ message: error.details[0].message });
@@ -197,6 +198,17 @@ const createPost = asyncHandler(async (req, res) => {
     
   post = new Post({ ...req.body, slug });
   await post.save();
+
+   // Increase noOfPosts in author collection
+   await User.findByIdAndUpdate(author, { $inc: { noOfPosts: 1 } });
+
+   // Increase noOfPosts in each category collection
+   await Promise.all(
+     categories.map(async (categoryId) => {
+       await Category.findByIdAndUpdate(categoryId, { $inc: { noOfPosts: 1 } });
+     })
+   );
+
   res.status(200).send({ message: "Post created successfully!", post});
 });
 
@@ -245,7 +257,19 @@ const deletePost = asyncHandler(async (req, res) => {
       .send({ message: "You are not allowed to delete this post!" });
   }
 
+  const {author, categories} = post;
+
   await Post.findByIdAndDelete(id);
+
+  // Decrease noOfPosts in User model for the author
+  await User.findByIdAndUpdate(author, { $inc: { noOfPosts: -1 } });
+
+  // Decrease noOfPosts in Category model for each category
+  await Promise.all(
+    categories.map(async (categoryId) => {
+      await Category.findByIdAndUpdate(categoryId, { $inc: { noOfPosts: -1 } });
+    })
+  );
 
   res.status(200).send({ message: "Post deleted successfully!" });
 });

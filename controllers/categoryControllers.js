@@ -174,6 +174,28 @@ const addSlugToCategories = async () => {
   }
 };
 
+const convertNoOfPostsToNumber = async () => {
+  try {
+    // Aggregation pipeline to convert the noOfPosts field to a number type
+    await Category.aggregate([
+      {
+        $addFields: {
+          noOfPosts: { $toInt: "$noOfPosts" } // Convert string to number
+        }
+      },
+      {
+        $merge: { into: "categories" } // Replace the existing collection with the updated documents
+      }
+    ]);
+    
+    console.log("Successfully converted noOfPosts field to number type for all documents in Category collection.");
+  } catch (error) {
+    console.error("Error converting noOfPosts field to number type:", error);
+  }
+};
+
+// convertNoOfPostsToNumber()
+
 // addSlugToCategories()
 
 module.exports = {
