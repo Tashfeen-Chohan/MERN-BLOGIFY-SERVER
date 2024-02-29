@@ -26,7 +26,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
   }
   // ADD FILTER BY CATEGORY
   if (categoryId) {
-    searchQuery.posts = { $in: [categoryId] };
+    searchQuery.categories = { $in: [categoryId] };
   }
 
   let sortQuery = { createdAt: -1 };
@@ -70,7 +70,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
     .limit(limit)
     // POPULATING AUTHOR FIELD WITH USERNAME
     .populate("author", "_id username profile")
-    .populate("categories", "name _id");
+    .populate("categories", "_id slug name");
 
   // Populate comments count for each post
   posts = await Promise.all(
@@ -165,7 +165,7 @@ const getSinglePost = asyncHandler(async (req, res) => {
   const { slug } = req.params;
   const post = await Post.findOne({slug})
     .populate("author", "_id profile username")
-    .populate("categories", "_id name");
+    .populate("categories", "_id name slug");
 
   const commentsCount = await Comment.countDocuments({ postId: post._id });
   if (!post) return res.status(400).send({ message: "No post found!" });
