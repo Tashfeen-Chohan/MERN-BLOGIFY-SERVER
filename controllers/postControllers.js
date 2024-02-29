@@ -164,7 +164,7 @@ const getTotalLikesAndViews = async (req, res) => {
 const getSinglePost = asyncHandler(async (req, res) => {
   const { slug } = req.params;
   const post = await Post.findOne({slug})
-    .populate("author", "_id profile username")
+    .populate("author", "_id profile username slug")
     .populate("categories", "_id name slug");
 
   const commentsCount = await Comment.countDocuments({ postId: post._id });
@@ -259,6 +259,10 @@ const deletePost = asyncHandler(async (req, res) => {
 
   const {author, categories} = post;
 
+  // Delete all comments associated with the post
+  await Comment.deleteMany({ postId: id });
+
+  // Delete the post itself
   await Post.findByIdAndDelete(id);
 
   // Decrease noOfPosts in User model for the author
