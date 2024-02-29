@@ -215,7 +215,7 @@ const createPost = asyncHandler(async (req, res) => {
 // UPDATE REQUEST
 const updatePost = asyncHandler(async (req, res) => {
   const { slug } = req.params;
-  const { title, author } = req.body;
+  const { title, author, categories: newCategories } = req.body;
 
   const { error } = validatePost(req.body);
   if (error) return res.status(400).send({ message: error.details[0].message });
@@ -226,12 +226,21 @@ const updatePost = asyncHandler(async (req, res) => {
       message: "Could not update! Post with same author already exists!",
     });
 
-   // Generate the new slug based on updated title and author
-   const authorDoc = await User.findById(author); // Assuming you have a User model
-   const authorName = authorDoc ? authorDoc.username : "unknown"; // Use 'unknown' if author is not found
-   const titleSlug = slugify(title, { lower: true });
-   const authorSlug = slugify(authorName, { lower: true });
-   const newSlug = `${titleSlug}__${authorSlug}`;
+  // Generate the new slug based on updated title and author
+  const authorDoc = await User.findById(author);
+  const authorName = authorDoc ? authorDoc.username : "unknown"; // Use 'unknown' if author is not found
+  const titleSlug = slugify(title, { lower: true });
+  const authorSlug = slugify(authorName, { lower: true });
+  const newSlug = `${titleSlug}__${authorSlug}`;
+
+  // Find the existing post
+  post = await Post.findOne({ slug });
+  if (!post) return res.status(400).send({ message: "Post not found!" });
+
+  // Calculate the difference in categories
+  const oldCategories = post.categories.map(String);
+  const categoriesToAdd = newCategories.filter(cat => !oldCategories.includes(cat));
+  const categoriesToRemove = oldCategories.filter(cat => !newCategories.includes(cat));
 
   // Update post with new slug and other fields
   post = await Post.findOneAndUpdate(
@@ -241,6 +250,21 @@ const updatePost = asyncHandler(async (req, res) => {
   );
   
   if (!post) return res.status(400).send({ message: "Post not found!" });
+
+  // Update noOfPosts for added categories
+  await Promise.all(
+    categoriesToAdd.map(async categoryId => {
+      await Category.findByIdAndUpdate(categoryId, { $inc: { noOfPosts: 1 } });
+    })
+  );
+
+  // Update noOfPosts for removed categories
+  await Promise.all(
+    categoriesToRemove.map(async categoryId => {
+      await Category.findByIdAndUpdate(categoryId, { $inc: { noOfPosts: -1 } });
+    })
+  );
+
   res.status(200).send({ message: "Post updated successfully!" });
 });
 
