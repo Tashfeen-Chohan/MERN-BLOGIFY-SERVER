@@ -43,8 +43,8 @@ const getAllComments = asyncHandler(async (req, res) => {
   .sort(sortQuery)
   .skip(skip)
   .limit(limit)
-    .populate("userId", "username")
-    .populate("postId", "_id title");
+  .populate("userId", "username")
+  .populate("postId", "_id slug title");
 
   res.status(200).send({ 
     comments, 

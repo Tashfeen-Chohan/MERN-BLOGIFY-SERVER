@@ -21,15 +21,13 @@ router
   .get(getAllPosts)
   .post(verifyJWT, checkPublisher, createPost);
 
-router
+  router
   .route("/:slug")
   .get(getSinglePost)
   .patch(verifyJWT, checkPublisher, updatePost)
-
-router
-  .route("/likes-views")
-  .get(getTotalLikesAndViews)
-
+  
+  
+router.route("/billo/likes-views").get(getTotalLikesAndViews)
 
 router
   .route("/:id")

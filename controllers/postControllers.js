@@ -69,7 +69,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
     .sort(sortQuery)
     .limit(limit)
     // POPULATING AUTHOR FIELD WITH USERNAME
-    .populate("author", "_id username profile")
+    .populate("author", "_id slug username profile")
     .populate("categories", "_id slug name");
 
   // Populate comments count for each post
@@ -167,15 +167,15 @@ const getSinglePost = asyncHandler(async (req, res) => {
     .populate("author", "_id profile username slug")
     .populate("categories", "_id name slug");
 
-  const commentsCount = await Comment.countDocuments({ postId: post._id });
   if (!post) return res.status(400).send({ message: "No post found!" });
+  const commentsCount = await Comment.countDocuments({ postId: post._id });
   res.status(200).send({
     post,
     commentsCount,
   });
 });
 
-// POST REQUEST
+// CREATE REQUEST
 const createPost = asyncHandler(async (req, res) => {
   const { title, author, categories } = req.body;
 
@@ -265,7 +265,7 @@ const updatePost = asyncHandler(async (req, res) => {
     })
   );
 
-  res.status(200).send({ message: "Post updated successfully!" });
+  res.status(200).send({ message: "Post updated successfully!", post });
 });
 
 // DELETE REQUEST

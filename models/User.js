@@ -5,9 +5,10 @@ const passwordComplexity = require("joi-password-complexity")
 const userSchema = new mongoose.Schema(
   {
     username: { type: String, unique: true, require: true },
+    slug: { type: String, unique: true, require: true },
     email: { type: String, unique: true, lowercase: true, require: true },
     password: { type: String, require: true },
-    profile: {type: String, default: "https://firebasestorage.googleapis.com/v0/b/mern-blogify.appspot.com/o/UserProfiles%2Fcowboy.pngf12778f1-7c17-4b29-a59b-c1645d28c749?alt=media&token=3474fe39-1911-4521-8b2e-a96db419af75"},
+    profile: {type: String, default: "https://firebasestorage.googleapis.com/v0/b/mern-blogify.appspot.com/o/UserProfiles%2Fcowboy.png?alt=media&token=75c80891-40de-464b-a2da-0bb0af3fa08a"},
     roles: { type: [String], default: ["User"] },
     noOfPosts: {type: Number, default: 0}
   },
@@ -38,6 +39,7 @@ const validateUser = (user) => {
 const validatePassword = (user) => {
   const schema = Joi.object({
     newPassword: passwordComplexity(complexityOptions),
+    confirmPassword: Joi.string()
   })
   return schema.validate(user)
 }

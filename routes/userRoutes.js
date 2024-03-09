@@ -14,20 +14,21 @@ const checkRoles = require("../middlewares/checkRoles");
 const checkAdmin = checkRoles(["Admin"]);
 const checkPublisher = checkRoles(["Publisher"]);
 
+router.route("/total-users").get(totalUsers)
+
 router.route("/")
   .get (getAllUsers)
   .post (createUser)
   .patch(verifyJWT, changePassword)
+
+router
+  .route("/:slug")
+  .get(getSingleUser)
+  .patch(verifyJWT, updateUser)
   
-router.route("/total-users")
-  .get(totalUsers)
   
 router
   .route("/:id")
-  .get(getSingleUser)
-  .patch (verifyJWT, updateUser)
-  // .patch(updateUser)
   .delete (verifyJWT, checkAdmin, deleteUser);
-  // .delete(deleteUser)
 
 module.exports = router;
