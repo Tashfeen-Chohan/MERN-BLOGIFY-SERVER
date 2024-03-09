@@ -1,5 +1,5 @@
 const allowedOrigins = [
-  "http://localhost:5173"
+  "https://tashfeen-blogify.vercel.app"
 ]
 
 module.exports = allowedOrigins;
