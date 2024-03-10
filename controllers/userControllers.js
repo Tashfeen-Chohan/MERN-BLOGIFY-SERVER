@@ -28,11 +28,15 @@ const getAllUsers = asyncHandler(async (req, res) => {
   // SORTING
   if (sortBy) {
     if (sortBy === "date") {
-      sortQuery = { updatedAt: 1 };
+      sortQuery = { createdAt: 1 };
     } else if (sortBy === "date desc") {
-      sortQuery = { updatedAt: -1 };
+      sortQuery = { createdAt: -1 };
     } else if (sortBy === "posts") {
       sortQuery = { noOfPosts: -1 };
+    } else if (sortBy === "name"){
+      sortQuery = {username : 1}
+    } else if (sortBy === "name desc"){
+      sortQuery = {username : -1}
     }
   }
 

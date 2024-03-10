@@ -36,7 +36,7 @@ const getAllPosts = asyncHandler(async (req, res) => {
     } else if (sortBy === "title desc") {
       sortQuery = { title: -1 };
     } else if (sortBy === "oldest") {
-      sortQuery = { updatedAt: 1 };
+      sortQuery = { createdAt: 1 };
     } else if (sortBy === "views") {
       sortQuery = { views: -1 };
     } else if (sortBy === "likes") {

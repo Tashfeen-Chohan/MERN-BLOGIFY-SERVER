@@ -22,9 +22,9 @@ const getAllCategories = asyncHandler(async (req, res) => {
     } else if (sortBy === "name desc") {
       sortQuery = { name: -1 };
     } else if (sortBy === "date") {
-      sortQuery = { updatedAt: 1 };
+      sortQuery = { createdAt: 1 };
     } else if (sortBy === "date desc") {
-      sortQuery = { updatedAt: -1 };
+      sortQuery = { createdAt: -1 };
     } else if (sortBy === "posts") {
       sortQuery = { noOfPosts: -1 };
     }
