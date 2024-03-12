@@ -16,13 +16,7 @@ mongoose
 
 // MIDDLEWARE FUNCTIONS
 app.use(express.json());
-// app.use(cors(corsOptions))
-// app.use(cors())
-app.use(cors({
-  origin: ["https://tashfeen-blogify.vercel.app"],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}))
+app.use(cors(corsOptions))
 app.use(cookieParser())
 
 // API ENDPOINTS
